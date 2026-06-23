@@ -1,6 +1,8 @@
 sources:
-  https://drive.google.com/drive/folders/1qAXWa63tDdvMC3al9o4XL3W5j0mheaJu:
+  Saját növénygyűjtemény:
+    drive_folder: https://drive.google.com/drive/folders/1qAXWa63tDdvMC3al9o4XL3W5j0mheaJu
     plants_yaml: https://drive.google.com/uc?export=download&id=1v_LMGz-mesXelH-CYxw9NaNv5ynHM_MB
+    settings_yaml: https://drive.google.com/uc?export=download&id=1rqXQXa3djVikPQIof9R0srUbFbVenut7
     images:
       egynyári/gyors_hideg/Alcea_rosea001.jpg: https://drive.google.com/uc?export=view&id=1s5H8KEeXZz_kvTJ00cxYB5ZcZmCEZMx_
       egynyári/gyors_hideg/Alcea_rosea002.jpg: https://drive.google.com/uc?export=view&id=157qG3cBwKnQkVDAvJnkdjYtkm7llJEmC
