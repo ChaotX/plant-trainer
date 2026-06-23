@@ -1,0 +1,19 @@
+- names:
+    hu:
+      - "Kocsányos tölgy"
+    la:
+      - "Quercus robur"
+  tags:
+    - tree
+  images:
+    - images/quercus_robur_01.jpg
+
+- names:
+    hu:
+      - ""
+    la:
+      - "Alcea rosea"
+  tags:
+    - flower
+  images:
+    - images/alcea_rosea_01.jpg
