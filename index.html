@@ -1,110 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="hu">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Plant Catalog</title>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
+    <title>Növényfelismerő</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: auto;
-            padding: 20px;
-        }
+    <link rel="stylesheet" href="style.css">
 
-        input {
-            width: 100%;
-            padding: 10px;
-            font-size: 18px;
-        }
+    <script src="vendor/js-yaml.min.js"></script>
 
-        .plant {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-top: 15px;
-            padding: 15px;
-        }
+    <!-- <script src="js/storage.js"></script> -->
+    <!-- <script src="js/statistics.js"></script> -->
+    <!-- <script src="js/study-mode.js"></script> -->
+    <!-- <script src="js/quiz-multiple-choice.js"></script> -->
+    <!-- <script src="js/quiz-free-text.js"></script> -->
 
-        img {
-            max-width: 250px;
-            border-radius: 8px;
-        }
-
-        .latin {
-            font-style: italic;
-        }
-    </style>
+    <script src="app.js"></script>
 </head>
+
 <body>
 
-<h1>🌳 Plant Catalog</h1>
+<header>
+    <h1 id="appTitle">
+        🌿 Növényfelismerő
+    </h1>
+</header>
 
-<input id="search" placeholder="Search...">
+<main>
 
-<div id="plants"></div>
+    <!-- --------------------------------------------------- -->
+    <!-- STARTUP -->
+    <!-- --------------------------------------------------- -->
 
-<script>
-let allPlants = [];
+    <section id="startupScreen">
 
-async function loadPlants() {
-    const response = await fetch("plants.yaml");
-    const text = await response.text();
+        <h2>
+            Adatforrás kiválasztása
+        </h2>
 
-    allPlants = jsyaml.load(text);
+        <p>
+            Válassz egy növény adatbázist.
+        </p>
 
-    render(allPlants);
-}
+        <select id="sourceSelector">
+            <option>
+                Betöltés...
+            </option>
+        </select>
 
-function render(plants) {
-    const container = document.getElementById("plants");
+        <br><br>
 
-    container.innerHTML = "";
+        <button id="loadSourceButton">
+            Betöltés
+        </button>
 
-    for (const plant of plants) {
-        const div = document.createElement("div");
+        <div id="loadStatus"></div>
 
-        div.className = "plant";
+    </section>
 
-        const latin = plant.names.la[0];
+    <!-- --------------------------------------------------- -->
+    <!-- MAIN MENU -->
+    <!-- --------------------------------------------------- -->
 
-        const hungarian =
-            plant.names.hu.length > 0
-                ? plant.names.hu[0]
-                : "";
+    <section
+        id="mainMenu"
+        class="hidden"
+    >
 
-        const image =
-            plant.images.length > 0
-                ? plant.images[0]
-                : "";
+        <h2>
+            Menü
+        </h2>
 
-        div.innerHTML = `
-            <h2>${latin}</h2>
-            <div class="latin">${hungarian}</div>
-            ${image ? `<img src="${image}">` : ""}
-        `;
+        <div class="menu-buttons">
 
-        container.appendChild(div);
-    }
-}
+            <button
+                id="studyModeButton"
+            >
+                📚 Tanuló mód
+            </button>
 
-document.getElementById("search").addEventListener("input", e => {
-    const q = e.target.value.toLowerCase();
+            <button
+                id="multipleChoiceButton"
+            >
+                ✅ Feleletválasztós kvíz
+            </button>
 
-    const filtered = allPlants.filter(p => {
-        const la = p.names.la.join(" ").toLowerCase();
-        const hu = p.names.hu.join(" ").toLowerCase();
+            <button
+                id="freeTextButton"
+            >
+                ✏️ Beírásos kvíz
+            </button>
 
-        return la.includes(q) || hu.includes(q);
-    });
+            <button
+                id="statsButton"
+            >
+                📈 Statisztika
+            </button>
 
-    render(filtered);
-});
+        </div>
 
-loadPlants();
-</script>
+        <hr>
+
+        <button
+            id="changeSourceButton"
+        >
+            🔄 Adatforrás váltása
+        </button>
+
+    </section>
+
+    <!-- --------------------------------------------------- -->
+    <!-- CONTENT -->
+    <!-- --------------------------------------------------- -->
+
+    <section id="content">
+
+    </section>
+
+</main>
 
 </body>
 </html>
