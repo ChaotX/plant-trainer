@@ -1,0 +1,103 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+button {
+    cursor: pointer;
+    padding: 12px 20px;
+    font-size: 16px;
+}
+
+#content {
+    margin-top: 25px;
+}
+
+.plant-image {
+    max-width: 100%;
+    max-height: 600px;
+    border-radius: 8px;
+}
+
+.study-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.choice-button {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+}
+
+.correct {
+    background: #c8f5c8;
+}
+
+.incorrect {
+    background: #ffcfcf;
+}
+
+.answer-box {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+}
+
+.score-box {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.result-correct {
+    color: green;
+}
+
+.result-wrong {
+    color: red;
+}
+
+.quiz-image {
+    max-width: 100%;
+    max-height: 500px;
+    border-radius: 8px;
+}
+
+.result-row {
+    margin: 10px 0;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.stats-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.stats-table td,
+.stats-table th {
+    border: 1px solid #ccc;
+    padding: 8px;
+}
