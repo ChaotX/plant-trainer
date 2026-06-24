@@ -290,6 +290,20 @@ const MultipleChoiceQuiz = {
                 "div"
             );
 
+        if (
+            this.currentQuestion + 1
+            >=
+            this.questions.length
+        ) {
+
+            buttonText =
+                "📊 Eredmény";
+        } else {
+
+            buttonText =
+                "➡️ Következő kérdés";
+        }
+
         result.className =
             "quiz-result";
 
@@ -308,7 +322,7 @@ const MultipleChoiceQuiz = {
             <button
                 id="nextQuestionButton"
             >
-                Következő kérdés
+                ${buttonText}
             </button>
         `;
 
@@ -411,13 +425,7 @@ const MultipleChoiceQuiz = {
                     "
                 >
 
-                    <img
-                        src="${imageUrl}"
-                        style="
-                            width:120px;
-                            border-radius:8px;
-                        "
-                    >
+                    ${imageHtml}
 
                     <p>
 
