@@ -302,7 +302,7 @@ const App = {
         return await response.text();
     },
 
-    getImageUrl(
+    async getImageUrl(
         relativePath
     ) {
 
@@ -318,13 +318,21 @@ const App = {
             );
         }
 
+        const response =
+            await fetch(
+                API_URL
+                + "?action=image"
+                + "&id="
+                + encodeURIComponent(
+                    file.id
+                )
+            );
+
+        const data =
+            await response.json();
+
         return (
-            API_URL
-            + "?action=image"
-            + "&id="
-            + encodeURIComponent(
-                file.id
-            )
+            `data:${data.mimeType};base64,${data.data}`
         );
     },
 
