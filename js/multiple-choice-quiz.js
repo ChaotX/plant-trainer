@@ -148,10 +148,7 @@ const MultipleChoiceQuiz = {
 
             </div>
 
-            <img
-                src="${imageUrl}"
-                class="plant-image"
-            >
+            ${imageHtml}
 
             <div
                 class="quiz-choices"
