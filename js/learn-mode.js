@@ -32,6 +32,16 @@ const LearnMode = {
                 this.currentIndex
             ];
 
+        console.log(
+            "PLANT:",
+            plant
+        );
+
+        console.log(
+            "IMAGE PATH:",
+            plant.images?.[0]
+        );
+
         const latinName =
             plant.names?.la?.[0]
             || "Ismeretlen";
@@ -119,11 +129,32 @@ const LearnMode = {
 
             </div>
         `;
+        
+        let imageUrl;
 
-        const imageUrl =
-            await App.getImageUrl(
-                imagePath
+        try {
+
+            imageUrl =
+                await App.getImageUrl(
+                    imagePath
+                );
+
+            console.log(
+                "IMAGE OK",
+                imagePath,
+                imageUrl
             );
+
+        } catch (error) {
+
+            console.error(
+                "IMAGE ERROR",
+                imagePath,
+                error
+            );
+
+            imageUrl = "";
+        }
 
         document
             .getElementById(
