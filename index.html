@@ -1,40 +1,52 @@
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Növényfelismerő</title>
+    <title>
+        Növényfelismerő
+    </title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
     <script src="vendor/js-yaml.min.js"></script>
 
-    <!-- <script src="js/storage.js"></script> -->
-    <!-- <script src="js/statistics.js"></script> -->
-    <!-- <script src="js/study-mode.js"></script> -->
-    <!-- <script src="js/quiz-multiple-choice.js"></script> -->
-    <!-- <script src="js/quiz-free-text.js"></script> -->
+    <script src="js/learn-mode.js"></script>
+    <script src="js/multiple-choice-quiz.js"></script>
+    <script src="js/free-text-quiz.js"></script>
 
-    <script src="js/app.js"></script>
+    <script
+        src="js/app.js"
+        defer
+    ></script>
+
 </head>
 
 <body>
 
 <header>
+
     <h1 id="appTitle">
         🌿 Növényfelismerő
     </h1>
+
 </header>
 
 <main>
 
-    <!-- --------------------------------------------------- -->
-    <!-- STARTUP -->
-    <!-- --------------------------------------------------- -->
+    <!-- ============================================ -->
+    <!-- FORRÁS VÁLASZTÓ -->
+    <!-- ============================================ -->
 
     <section id="startupScreen">
 
@@ -47,24 +59,30 @@
         </p>
 
         <select id="sourceSelector">
+
             <option>
                 Betöltés...
             </option>
+
         </select>
 
-        <br><br>
+        <br>
 
         <button id="loadSourceButton">
+
             Betöltés
+
         </button>
 
-        <div id="loadStatus"></div>
+        <div id="loadStatus">
+
+        </div>
 
     </section>
 
-    <!-- --------------------------------------------------- -->
-    <!-- MAIN MENU -->
-    <!-- --------------------------------------------------- -->
+    <!-- ============================================ -->
+    <!-- FŐMENÜ -->
+    <!-- ============================================ -->
 
     <section
         id="mainMenu"
@@ -95,12 +113,6 @@
                 ✏️ Beírásos kvíz
             </button>
 
-            <button
-                id="statsButton"
-            >
-                📈 Statisztika
-            </button>
-
         </div>
 
         <hr>
@@ -113,15 +125,19 @@
 
     </section>
 
-    <!-- --------------------------------------------------- -->
-    <!-- CONTENT -->
-    <!-- --------------------------------------------------- -->
+    <!-- ============================================ -->
+    <!-- TARTALOM -->
+    <!-- ============================================ -->
 
-    <section id="content">
+    <section
+        id="content"
+        class="hidden"
+    >
 
     </section>
 
 </main>
 
 </body>
+
 </html>

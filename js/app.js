@@ -1,34 +1,186 @@
 const API_URL =
     "https://script.google.com/macros/s/AKfycbxBfssV4rJFYwVjUqNe2oq87ZBto61u-7zf0V1LYZoyR-ISrjUXRCWMzkOuK_hqEBaW/exec";
 
-const FOLDER_ID =
-    "1qAXWa63tDdvMC3al9o4XL3W5j0mheaJu";
-
-
 const App = {
+
+    sources: {},
+
+    plants: [],
 
     settings: {},
 
-    plants: [],
+    currentFolderId: null,
 
     async initialize() {
 
         try {
 
-            await this.loadData();
+            await this.loadSources();
 
-            this.showFirstPlant();
+            this.registerEvents();
 
         } catch (error) {
 
             console.error(error);
 
             document.getElementById(
-                "content"
-            ).innerHTML = `
-                <h2>Hiba</h2>
-                <pre>${error}</pre>
-            `;
+                "loadStatus"
+            ).innerText =
+                error.message;
+        }
+    },
+
+    registerEvents() {
+
+        document
+            .getElementById(
+                "loadSourceButton"
+            )
+            .addEventListener(
+                "click",
+                () => this.loadSelectedSource()
+            );
+
+        document
+            .getElementById(
+                "changeSourceButton"
+            )
+            .addEventListener(
+                "click",
+                () => this.showStartupScreen()
+            );
+
+        document
+            .getElementById(
+                "studyModeButton"
+            )
+            .addEventListener(
+                "click",
+                () => LearnMode.start()
+            );
+
+        document
+            .getElementById(
+                "multipleChoiceButton"
+            )
+            .addEventListener(
+                "click",
+                () => MultipleChoiceQuiz.start()
+            );
+
+        document
+            .getElementById(
+                "freeTextButton"
+            )
+            .addEventListener(
+                "click",
+                () => FreeTextQuiz.start()
+            );
+    },
+
+    async loadSources() {
+
+        const response =
+            await fetch(
+                "sources.yaml"
+            );
+
+        const yamlText =
+            await response.text();
+
+        const data =
+            jsyaml.load(
+                yamlText
+            );
+
+        this.sources =
+            data.sources || {};
+
+        const selector =
+            document.getElementById(
+                "sourceSelector"
+            );
+
+        selector.innerHTML = "";
+
+        Object.keys(
+            this.sources
+        ).forEach(
+            sourceName => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    sourceName;
+
+                option.innerText =
+                    sourceName;
+
+                selector.appendChild(
+                    option
+                );
+            }
+        );
+    },
+
+    async loadSelectedSource() {
+
+        try {
+
+            const selector =
+                document.getElementById(
+                    "sourceSelector"
+                );
+
+            const sourceName =
+                selector.value;
+
+            const source =
+                this.sources[
+                    sourceName
+                ];
+
+            const folderUrl =
+                source.drive_folder;
+
+            this.currentFolderId =
+                this.extractFolderId(
+                    folderUrl
+                );
+
+            document.getElementById(
+                "loadStatus"
+            ).innerText =
+                "Betöltés...";
+
+            await this.loadData();
+
+            document.getElementById(
+                "appTitle"
+            ).innerText =
+                this.settings.title
+                || sourceName;
+
+            this.showMainMenu();
+
+            document.getElementById(
+                "loadStatus"
+            ).innerText =
+                "";
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+            document.getElementById(
+                "loadStatus"
+            ).innerText =
+                error.message;
         }
     },
 
@@ -55,7 +207,7 @@ const App = {
             );
 
         this.settings =
-            settingsData;
+            settingsData || {};
 
         if (
             Array.isArray(
@@ -69,7 +221,8 @@ const App = {
         } else {
 
             this.plants =
-                plantsData.plants || [];
+                plantsData.plants
+                || [];
         }
 
         console.log(
@@ -85,7 +238,7 @@ const App = {
         const url =
             `${API_URL}`
             + `?action=file`
-            + `&folder=${encodeURIComponent(FOLDER_ID)}`
+            + `&folder=${encodeURIComponent(this.currentFolderId)}`
             + `&path=${encodeURIComponent(relativePath)}`;
 
         const response =
@@ -98,84 +251,22 @@ const App = {
         ) {
 
             throw new Error(
-                `Failed to load ${relativePath}`
+                `Nem sikerült betölteni: ${relativePath}`
             );
         }
 
         return await response.text();
     },
 
-    buildImageUrl(
-        imagePath
-    ) {
-
-        return (
-            `${API_URL}`
-            + `?action=image-url`
-            + `&folder=${encodeURIComponent(FOLDER_ID)}`
-            + `&path=${encodeURIComponent(imagePath)}`
-        );
-    },
-
-    showFirstPlant() {
-        console.log(
-            this.plants[0]
-        );
-        if (
-            this.plants.length === 0
-        ) {
-
-            document.getElementById(
-                "content"
-            ).innerHTML =
-                "<h2>Nincs növény.</h2>";
-
-            return;
-        }
-
-        const plant =
-            this.plants[0];
-
-        const latinName =
-            plant.names?.la?.[0]
-            || "Ismeretlen";
-
-        const imagePath =
-            plant.images?.[0];
-
-        document.getElementById(
-            "content"
-        ).innerHTML = `
-            <h2>${latinName}</h2>
-
-            <p>
-                Kép útvonal:
-                ${imagePath}
-            </p>
-
-            <img
-                id="plantImage"
-                style="
-                    max-width: 600px;
-                    width: 100%;
-                    border-radius: 12px;
-                "
-            >
-        `;
-
-        this.loadImage(
-            imagePath
-        );
-    },
-
-    async loadImage(
-        imagePath
+    async getImageUrl(
+        relativePath
     ) {
 
         const url =
-            this.buildImageUrl(
-                imagePath
-            );
+            `${API_URL}`
+            + `?action=image-url`
+            + `&folder=${encodeURIComponent(this.currentFolderId)}`
+            + `&path=${encodeURIComponent(relativePath)}`;
 
         const response =
             await fetch(
@@ -185,13 +276,101 @@ const App = {
         const data =
             await response.json();
 
-        document.getElementById(
-            "plantImage"
-        ).src =
-            data.url;
+        return data.url;
+    },
+
+    extractFolderId(
+        driveUrl
+    ) {
+
+        const match =
+            driveUrl.match(
+                /folders\/([a-zA-Z0-9_-]+)/
+            );
+
+        if (!match) {
+
+            throw new Error(
+                "Érvénytelen Google Drive mappa URL"
+            );
+        }
+
+        return match[1];
+    },
+
+    showStartupScreen() {
+
+        document
+            .getElementById(
+                "startupScreen"
+            )
+            .classList.remove(
+                "hidden"
+            );
+
+        document
+            .getElementById(
+                "mainMenu"
+            )
+            .classList.add(
+                "hidden"
+            );
+
+        document
+            .getElementById(
+                "content"
+            )
+            .classList.add(
+                "hidden"
+            );
+    },
+
+    showMainMenu() {
+
+        document
+            .getElementById(
+                "startupScreen"
+            )
+            .classList.add(
+                "hidden"
+            );
+
+        document
+            .getElementById(
+                "mainMenu"
+            )
+            .classList.remove(
+                "hidden"
+            );
+
+        document
+            .getElementById(
+                "content"
+            )
+            .classList.add(
+                "hidden"
+            );
+    },
+
+    showContent() {
+
+        document
+            .getElementById(
+                "mainMenu"
+            )
+            .classList.add(
+                "hidden"
+            );
+
+        document
+            .getElementById(
+                "content"
+            )
+            .classList.remove(
+                "hidden"
+            );
     }
 };
-
 
 window.addEventListener(
     "DOMContentLoaded",

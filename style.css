@@ -3,101 +3,287 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 20px;
+
+    margin: 0;
+
+    padding: 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f5f7f5;
+
+    color: #222;
 }
 
 header {
+
+    background: #2e7d32;
+
+    color: white;
+
+    padding: 1rem;
+
     text-align: center;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.15);
+}
+
+main {
+
+    max-width: 1000px;
+
+    margin: 0 auto;
+
+    padding: 1rem;
 }
 
 .hidden {
-    display: none;
+
+    display: none !important;
 }
 
-.menu-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+section {
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 1rem;
+
+    margin-bottom: 1rem;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.08);
+}
+
+h1,
+h2,
+h3 {
+
+    margin-top: 0;
+}
+
+select {
+
+    width: 100%;
+
+    padding: 0.75rem;
+
+    font-size: 1rem;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
 }
 
 button {
+
     cursor: pointer;
-    padding: 12px 20px;
-    font-size: 16px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    padding:
+        0.8rem
+        1.2rem;
+
+    font-size: 1rem;
+
+    background: #2e7d32;
+
+    color: white;
+
+    transition:
+        background 0.2s;
 }
 
-#content {
-    margin-top: 25px;
+button:hover {
+
+    background: #1b5e20;
+}
+
+button:disabled {
+
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+.menu-buttons {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0.75rem;
+}
+
+#loadSourceButton {
+
+    margin-top: 1rem;
+
+    width: 100%;
+}
+
+#changeSourceButton {
+
+    width: 100%;
+}
+
+#loadStatus {
+
+    margin-top: 1rem;
+
+    color: #666;
+}
+
+.plant-card {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1rem;
 }
 
 .plant-image {
-    max-width: 100%;
-    max-height: 600px;
-    border-radius: 8px;
+
+    width: 100%;
+
+    max-height: 70vh;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+
+    background: #f0f0f0;
 }
 
-.study-controls {
+.plant-names {
+
+    text-align: center;
+}
+
+.plant-latin {
+
+    font-size: 1.5rem;
+
+    font-weight: bold;
+
+    font-style: italic;
+}
+
+.plant-hungarian {
+
+    margin-top: 0.5rem;
+
+    font-size: 1.2rem;
+}
+
+.navigation-buttons {
+
     display: flex;
-    gap: 10px;
-    margin-top: 20px;
+
+    gap: 0.5rem;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
 }
 
-.choice-button {
-    display: block;
+.quiz-choices {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0.75rem;
+}
+
+.quiz-choice {
+
     width: 100%;
-    margin-top: 10px;
-    padding: 12px;
 }
 
-.correct {
-    background: #c8f5c8;
-}
+.quiz-result {
 
-.incorrect {
-    background: #ffcfcf;
-}
+    margin-top: 1rem;
 
-.answer-box {
-    width: 100%;
-    padding: 10px;
-    font-size: 18px;
-}
+    padding: 1rem;
 
-.score-box {
-    font-size: 20px;
+    border-radius: 8px;
+
+    text-align: center;
+
     font-weight: bold;
 }
 
-.result-correct {
-    color: green;
+.quiz-correct {
+
+    background: #e8f5e9;
+
+    color: #2e7d32;
 }
 
-.result-wrong {
-    color: red;
+.quiz-wrong {
+
+    background: #ffebee;
+
+    color: #c62828;
 }
 
-.quiz-image {
-    max-width: 100%;
-    max-height: 500px;
-    border-radius: 8px;
+.quiz-progress {
+
+    text-align: center;
+
+    margin-bottom: 1rem;
+
+    color: #666;
 }
 
-.result-row {
-    margin: 10px 0;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
+.quiz-input {
 
-.stats-table {
-    border-collapse: collapse;
     width: 100%;
+
+    padding: 0.75rem;
+
+    font-size: 1rem;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    margin-bottom: 1rem;
 }
 
-.stats-table td,
-.stats-table th {
-    border: 1px solid #ccc;
-    padding: 8px;
+.center {
+
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+
+    .menu-buttons {
+
+        display: grid;
+
+        grid-template-columns:
+            1fr
+            1fr
+            1fr;
+
+        gap: 1rem;
+    }
+
+    .navigation-buttons {
+
+        gap: 1rem;
+    }
 }
