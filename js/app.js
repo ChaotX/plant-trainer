@@ -166,27 +166,19 @@ const App = {
         );
     },
 
-    async loadImage(
+    loadImage(
         imagePath
     ) {
 
         const url =
-            this.buildImageUrl(
-                imagePath
-            );
-
-        const response =
-            await fetch(
-                url
-            );
-
-        const data =
-            await response.json();
+            `${API_URL}`
+            + `?action=image-url`
+            + `&folder=${encodeURIComponent(FOLDER_ID)}`
+            + `&path=${encodeURIComponent(imagePath)}`;
 
         document.getElementById(
             "plantImage"
-        ).src =
-            data.url;
+        ).src = url;
     }
 };
 
