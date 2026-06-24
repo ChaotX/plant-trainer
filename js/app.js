@@ -429,12 +429,8 @@ const App = {
 
         console.error(
             "Missing image",
-            {
-                plant:
-                    question.plant.names?.la?.[0],
-                imagePath:
-                    question.plant.images?.[0]
-            }
+            plant,
+            imagePath
         );
 
         return `
