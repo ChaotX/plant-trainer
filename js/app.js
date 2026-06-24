@@ -3,6 +3,10 @@ const API_URL =
 
 const App = {
 
+    imageIndex: {},
+
+    apiKey: null,
+
     sources: {},
 
     plants: [],
@@ -76,6 +80,37 @@ const App = {
                 "click",
                 () => FreeTextQuiz.start()
             );
+    },
+
+    async loadIndex() {
+
+        const url =
+            `${API_URL}`
+            + `?action=index`
+            + `&folder=${encodeURIComponent(
+                this.currentFolderId
+            )}`;
+
+        const response =
+            await fetch(
+                url
+            );
+
+        const data =
+            await response.json();
+
+        this.apiKey =
+            data.apiKey;
+
+        this.imageIndex =
+            data.files || {};
+
+        console.log(
+            "Indexed files:",
+            Object.keys(
+                this.imageIndex
+            ).length
+        );
     },
 
     async loadSources() {
@@ -162,6 +197,8 @@ const App = {
                 "loadStatus"
             ).innerText =
                 "Betöltés...";
+
+            await this.loadIndex();
 
             await this.loadData();
 
@@ -265,54 +302,28 @@ const App = {
         return await response.text();
     },
 
-    async getImageUrl(
+    getImageUrl(
         relativePath
     ) {
 
-        const url =
-            `${API_URL}`
-            + `?action=image-url`
-            + `&folder=${encodeURIComponent(this.currentFolderId)}`
-            + `&path=${encodeURIComponent(relativePath)}`;
+        const file =
+            this.imageIndex[
+                relativePath
+            ];
 
-        console.log(
-            "REQUEST URL:",
-            url
-        );
+        if (!file) {
 
-        const response =
-            await fetch(
-                url
-            );
-
-        const text =
-            await response.text();
-
-        console.log(
-            "RAW RESPONSE:",
-            text
-        );
-
-        const data =
-            JSON.parse(text);
-
-        console.log(
-            "PARSED DATA:",
-            data
-        );
-
-        console.log(
-            "RETURNING:",
-            data.url
-        );
-
-        if (data.error) {
             throw new Error(
-                `Kép nem található: ${data.path}`
+                `Kép nem található: ${relativePath}`
             );
         }
 
-        return data.url;
+        return (
+            "https://www.googleapis.com/drive/v3/files/"
+            + file.id
+            + "?alt=media&key="
+            + this.apiKey
+        );
     },
 
     extractFolderId(
