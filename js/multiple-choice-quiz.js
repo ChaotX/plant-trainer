@@ -111,7 +111,7 @@ const MultipleChoiceQuiz = {
         try {
 
             const imageUrl =
-                App.getImageUrl(
+                await App.getImageUrl(
                     question.plant.images?.[0]
                 );
 
@@ -394,7 +394,7 @@ const MultipleChoiceQuiz = {
             try {
 
                 const imageUrl =
-                    App.getImageUrl(
+                    await App.getImageUrl(
                         question.plant.images?.[0]
                     );
 

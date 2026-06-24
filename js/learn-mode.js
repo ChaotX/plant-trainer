@@ -153,7 +153,7 @@ const LearnMode = {
         try {
 
             const imageUrl =
-                App.getImageUrl(
+                await App.getImageUrl(
                     imagePath
                 );
 

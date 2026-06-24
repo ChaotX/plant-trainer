@@ -68,7 +68,7 @@ const FreeTextQuiz = {
         try {
 
             const imageUrl =
-                App.getImageUrl(
+                await App.getImageUrl(
                     question.plant.images?.[0]
                 );
 
@@ -351,7 +351,7 @@ const FreeTextQuiz = {
             try {
 
                 const imageUrl =
-                    App.getImageUrl(
+                    await App.getImageUrl(
                         question.plant.images?.[0]
                     );
 
