@@ -106,10 +106,33 @@ const MultipleChoiceQuiz = {
                 this.currentQuestion
             ];
 
-        const imageUrl =
-            App.getImageUrl(
-                question.plant.images?.[0]
+        let imageHtml;
+
+        try {
+
+            const imageUrl =
+                App.getImageUrl(
+                    question.plant.images?.[0]
+                );
+
+            imageHtml = `
+                <img
+                    src="${imageUrl}"
+                    class="plant-image"
+                >
+            `;
+
+        } catch (error) {
+
+            console.error(
+                error
             );
+
+            imageHtml =
+                App.getMissingImageHtml(
+                    question.plant.images?.[0]
+                );
+        }
 
         document
             .getElementById(
@@ -354,10 +377,32 @@ const MultipleChoiceQuiz = {
             of this.questions
         ) {
 
-            const imageUrl =
-                App.getImageUrl(
-                    question.plant.images?.[0]
-                );
+            let imageHtml;
+
+            try {
+
+                const imageUrl =
+                    App.getImageUrl(
+                        question.plant.images?.[0]
+                    );
+
+                imageHtml = `
+                    <img
+                        src="${imageUrl}"
+                        style="
+                            width:120px;
+                            border-radius:8px;
+                        "
+                    >
+                `;
+
+            } catch (error) {
+
+                imageHtml =
+                    App.getMissingImageHtml(
+                        question.plant.images?.[0]
+                    );
+            }
 
             html += `
 
