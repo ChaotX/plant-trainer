@@ -139,29 +139,31 @@ const LearnMode = {
                     imagePath
                 );
 
-            console.log(
-                "IMAGE OK",
-                imagePath,
-                imageUrl
-            );
+            document
+                .getElementById(
+                    "plantImage"
+                )
+                .src =
+                imageUrl;
 
         } catch (error) {
 
             console.error(
-                "IMAGE ERROR",
-                imagePath,
                 error
             );
 
-            imageUrl = "";
+            document
+                .getElementById(
+                    "plantImage"
+                )
+                .outerHTML = `
+                    <div
+                        class="image-error"
+                    >
+                        ❌ ${error.message}
+                    </div>
+                `;
         }
-
-        document
-            .getElementById(
-                "plantImage"
-            )
-            .src =
-            imageUrl;
 
         this.registerEvents();
     },

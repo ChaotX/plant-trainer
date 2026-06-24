@@ -306,6 +306,12 @@ const App = {
             data.url
         );
 
+        if (data.error) {
+            throw new Error(
+                `Kép nem található: ${data.path}`
+            );
+        }
+
         return data.url;
     },
 
