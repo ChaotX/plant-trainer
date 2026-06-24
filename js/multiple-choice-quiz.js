@@ -41,57 +41,62 @@ const MultipleChoiceQuiz = {
             plants
         );
 
-        const selectedPlants =
-            plants.slice(
+        return plants
+            .slice(
                 0,
                 questionCount
-            );
+            )
+            .map(
+                plant => {
 
-        return selectedPlants.map(
-            plant => {
+                    const correctAnswer =
+                        plant.names?.la?.[0]
+                        || "Ismeretlen";
 
-                const correctAnswer =
-                    plant.names.la[0];
+                    const wrongAnswers =
+                        App.plants
+                            .filter(
+                                p =>
+                                    p !== plant
+                            )
+                            .map(
+                                p =>
+                                    p.names?.la?.[0]
+                            )
+                            .filter(Boolean);
 
-                const wrongAnswers =
-                    App.plants
-                        .filter(
-                            p =>
-                                p !== plant
+                    this.shuffle(
+                        wrongAnswers
+                    );
+
+                    const choices = [
+
+                        correctAnswer,
+
+                        ...wrongAnswers.slice(
+                            0,
+                            choiceCount - 1
                         )
-                        .map(
-                            p =>
-                                p.names.la[0]
-                        );
+                    ];
 
-                this.shuffle(
-                    wrongAnswers
-                );
+                    this.shuffle(
+                        choices
+                    );
 
-                const choices = [
+                    return {
 
-                    correctAnswer,
+                        plant,
 
-                    ...wrongAnswers.slice(
-                        0,
-                        choiceCount - 1
-                    )
-                ];
+                        correctAnswer,
 
-                this.shuffle(
-                    choices
-                );
+                        choices,
 
-                return {
+                        selectedAnswer: null,
 
-                    plant,
-
-                    correctAnswer,
-
-                    choices
-                };
-            }
-        );
+                        isCorrect: null
+                    };
+                }
+            );
     },
 
     async render() {
@@ -103,7 +108,7 @@ const MultipleChoiceQuiz = {
 
         const imageUrl =
             App.getImageUrl(
-                question.plant.images[0]
+                question.plant.images?.[0]
             );
 
         document
@@ -162,6 +167,9 @@ const MultipleChoiceQuiz = {
         question
     ) {
 
+        let answered =
+            false;
+
         document
             .querySelectorAll(
                 ".quiz-choice"
@@ -172,20 +180,71 @@ const MultipleChoiceQuiz = {
                     button
                         .addEventListener(
                             "click",
-                            async () => {
+                            () => {
+
+                                if (
+                                    answered
+                                ) {
+
+                                    return;
+                                }
+
+                                answered =
+                                    true;
 
                                 const answer =
                                     button.dataset.answer;
 
-                                if (
+                                const isCorrect =
                                     answer ===
-                                    question.correctAnswer
+                                    question.correctAnswer;
+
+                                question.selectedAnswer =
+                                    answer;
+
+                                question.isCorrect =
+                                    isCorrect;
+
+                                if (
+                                    isCorrect
                                 ) {
 
                                     this.score++;
+
+                                    button.classList.add(
+                                        "quiz-correct"
+                                    );
+
+                                } else {
+
+                                    button.classList.add(
+                                        "quiz-wrong"
+                                    );
+
+                                    document
+                                        .querySelectorAll(
+                                            ".quiz-choice"
+                                        )
+                                        .forEach(
+                                            btn => {
+
+                                                if (
+                                                    btn.dataset.answer
+                                                    ===
+                                                    question.correctAnswer
+                                                ) {
+
+                                                    btn.classList.add(
+                                                        "quiz-correct"
+                                                    );
+                                                }
+                                            }
+                                        );
                                 }
 
-                                await this.nextQuestion();
+                                this.showAnswer(
+                                    question
+                                );
                             }
                         );
                 }
@@ -202,6 +261,58 @@ const MultipleChoiceQuiz = {
             );
     },
 
+    showAnswer(
+        question
+    ) {
+
+        const result =
+            document.createElement(
+                "div"
+            );
+
+        result.className =
+            "quiz-result";
+
+        result.innerHTML = `
+
+            <p>
+
+                Helyes válasz:
+
+                <strong>
+                    ${question.correctAnswer}
+                </strong>
+
+            </p>
+
+            <button
+                id="nextQuestionButton"
+            >
+                Következő kérdés
+            </button>
+        `;
+
+        document
+            .getElementById(
+                "content"
+            )
+            .appendChild(
+                result
+            );
+
+        document
+            .getElementById(
+                "nextQuestionButton"
+            )
+            .addEventListener(
+                "click",
+                async () => {
+
+                    await this.nextQuestion();
+                }
+            );
+    },
+
     async nextQuestion() {
 
         this.currentQuestion++;
@@ -211,7 +322,7 @@ const MultipleChoiceQuiz = {
             this.questions.length
         ) {
 
-            this.showResults();
+            await this.showResults();
 
             return;
         }
@@ -219,23 +330,83 @@ const MultipleChoiceQuiz = {
         await this.render();
     },
 
-    showResults() {
+    async showResults() {
 
-        document
-            .getElementById(
-                "content"
-            )
-            .innerHTML = `
+        let html = `
 
             <h2>
                 Eredmény
             </h2>
 
             <p>
+
                 ${this.score}
                 /
                 ${this.questions.length}
+
             </p>
+
+            <hr>
+        `;
+
+        for (
+            const question
+            of this.questions
+        ) {
+
+            const imageUrl =
+                App.getImageUrl(
+                    question.plant.images?.[0]
+                );
+
+            html += `
+
+                <div
+                    style="
+                        margin-bottom:20px;
+                        padding-bottom:20px;
+                        border-bottom:1px solid #ddd;
+                    "
+                >
+
+                    <img
+                        src="${imageUrl}"
+                        style="
+                            width:120px;
+                            border-radius:8px;
+                        "
+                    >
+
+                    <p>
+
+                        ${
+                            question.isCorrect
+                                ? "✅"
+                                : "❌"
+                        }
+
+                        <strong>
+                            ${question.correctAnswer}
+                        </strong>
+
+                    </p>
+
+                    ${
+                        question.isCorrect
+                            ? ""
+                            : `
+                                <p>
+                                    Te válaszod:
+                                    ${question.selectedAnswer}
+                                </p>
+                            `
+                    }
+
+                </div>
+            `;
+        }
+
+        html += `
 
             <button
                 id="backToMenuButton"
@@ -243,6 +414,13 @@ const MultipleChoiceQuiz = {
                 🏠 Menü
             </button>
         `;
+
+        document
+            .getElementById(
+                "content"
+            )
+            .innerHTML =
+            html;
 
         document
             .getElementById(
