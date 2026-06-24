@@ -178,6 +178,10 @@ const LearnMode = {
         }
 
         this.registerEvents();
+
+        this.preloadNext();
+
+        this.preloadRandom();
     },
 
     registerEvents() {
@@ -287,6 +291,72 @@ const LearnMode = {
                     App.showMainMenu();
                 }
             );
+    },
+
+    async preloadNext() {
+
+        const nextIndex =
+            (this.currentIndex + 1)
+            %
+            this.plants.length;
+
+        const nextPlant =
+            this.plants[
+                nextIndex
+            ];
+
+        const imagePath =
+            nextPlant.images?.[0];
+
+        if (!imagePath) {
+
+            return;
+        }
+
+        try {
+
+            await App.getImageUrl(
+                imagePath
+            );
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+        }
+    },
+
+    async preloadRandom() {
+
+        const plant =
+            this.plants[
+                Math.floor(
+                    Math.random()
+                    * this.plants.length
+                )
+            ];
+
+        const imagePath =
+            plant.images?.[0];
+
+        if (!imagePath) {
+
+            return;
+        }
+
+        try {
+
+            await App.getImageUrl(
+                imagePath
+            );
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+        }
     },
 
     shuffle(array) {

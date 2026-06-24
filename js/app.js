@@ -11,6 +11,8 @@ const App = {
 
     plants: [],
 
+    imageCache: {},
+    
     settings: {},
 
     currentFolderId: null,
@@ -305,6 +307,16 @@ const App = {
     async getImageUrl(
         relativePath
     ) {
+        if (
+            this.imageCache[
+                relativePath
+            ]
+        ) {
+
+            return this.imageCache[
+                relativePath
+            ];
+        }
 
         const file =
             this.imageIndex[
@@ -331,9 +343,21 @@ const App = {
         const data =
             await response.json();
 
-        return (
-            `data:${data.mimeType};base64,${data.data}`
-        );
+        const imageData =
+            `data:${data.mimeType};base64,${data.data}`;
+
+        const img =
+            new Image();
+
+        img.src =
+            imageData;
+
+        this.imageCache[
+            relativePath
+        ] =
+            imageData;
+
+        return imageData;
     },
 
     extractFolderId(
