@@ -319,10 +319,12 @@ const App = {
         }
 
         return (
-            "https://www.googleapis.com/drive/v3/files/"
-            + file.id
-            + "?alt=media&key="
-            + this.apiKey
+            API_URL
+            + "?action=image"
+            + "&id="
+            + encodeURIComponent(
+                file.id
+            )
         );
     },
 
