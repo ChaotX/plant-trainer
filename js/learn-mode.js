@@ -150,8 +150,6 @@ const LearnMode = {
             </div>
         `;
         
-        let imageUrl;
-
         try {
 
             const imageUrl =
