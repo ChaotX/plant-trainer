@@ -419,14 +419,35 @@ const App = {
     },
 
     getMissingImageHtml(
+        plant,
         imagePath
     ) {
+
+        const latinName =
+            plant?.names?.la?.[0]
+            || "Ismeretlen növény";
+
+        console.error(
+            "Missing image",
+            {
+                plant:
+                    question.plant.names?.la?.[0],
+                imagePath:
+                    question.plant.images?.[0]
+            }
+        );
 
         return `
             <div
                 class="image-error"
             >
                 ❌ Kép nem található
+
+                <br><br>
+
+                <strong>
+                    ${latinName}
+                </strong>
 
                 <br><br>
 
