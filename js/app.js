@@ -12,7 +12,7 @@ const App = {
     plants: [],
 
     imageCache: {},
-    
+
     settings: {},
 
     currentFolderId: null,
@@ -313,10 +313,20 @@ const App = {
             ]
         ) {
 
+            console.log(
+                "CACHE HIT",
+                relativePath
+            );
+
             return this.imageCache[
                 relativePath
             ];
         }
+
+        console.log(
+            "DOWNLOAD",
+            relativePath
+        );
 
         const file =
             this.imageIndex[

@@ -6,6 +6,8 @@ const LearnMode = {
 
     currentIndex: 0,
 
+    nextRandomIndex: null,
+
     showNames: false,
 
     async start() {
@@ -27,8 +29,6 @@ const LearnMode = {
                 this.plants
             );
         }
-
-        this.currentIndex = 0;
 
         App.showContent();
 
@@ -271,10 +271,7 @@ const LearnMode = {
                     );
 
                     this.currentIndex =
-                        Math.floor(
-                            Math.random()
-                            * this.plants.length
-                        );
+                        this.nextRandomIndex;
                     this.showNames = false;
                     await this.render();
                 }
@@ -327,14 +324,22 @@ const LearnMode = {
         }
     },
 
+    prepareRandom() {
+
+        this.nextRandomIndex =
+            Math.floor(
+                Math.random()
+                * this.plants.length
+            );
+    },
+
     async preloadRandom() {
+
+        this.prepareRandom();
 
         const plant =
             this.plants[
-                Math.floor(
-                    Math.random()
-                    * this.plants.length
-                )
+                this.nextRandomIndex
             ];
 
         const imagePath =
@@ -345,18 +350,9 @@ const LearnMode = {
             return;
         }
 
-        try {
-
-            await App.getImageUrl(
-                imagePath
-            );
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-        }
+        await App.getImageUrl(
+            imagePath
+        );
     },
 
     shuffle(array) {
