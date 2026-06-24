@@ -416,6 +416,25 @@ const App = {
             .classList.remove(
                 "hidden"
             );
+    },
+
+    getMissingImageHtml(
+        imagePath
+    ) {
+
+        return `
+            <div
+                class="image-error"
+            >
+                ❌ Kép nem található
+
+                <br><br>
+
+                <code>
+                    ${imagePath || "(üres útvonal)"}
+                </code>
+            </div>
+        `;
     }
 };
 

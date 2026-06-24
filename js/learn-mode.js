@@ -168,21 +168,14 @@ const LearnMode = {
 
         } catch (error) {
 
-            console.error(
-                error
-            );
-
             document
                 .getElementById(
                     "plantImage"
                 )
-                .outerHTML = `
-                    <div
-                        class="image-error"
-                    >
-                        ❌ ${error.message}
-                    </div>
-                `;
+                .outerHTML =
+                App.getMissingImageHtml(
+                    imagePath
+                );
         }
 
         this.registerEvents();
