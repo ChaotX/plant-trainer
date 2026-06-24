@@ -172,6 +172,7 @@ const LearnMode = {
                 )
                 .outerHTML =
                 App.getMissingImageHtml(
+                    plant,
                     imagePath
                 );
         }

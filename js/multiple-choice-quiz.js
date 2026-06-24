@@ -130,6 +130,7 @@ const MultipleChoiceQuiz = {
 
             imageHtml =
                 App.getMissingImageHtml(
+                    question.plant,
                     question.plant.images?.[0]
                 );
         }
@@ -411,6 +412,7 @@ const MultipleChoiceQuiz = {
 
                 imageHtml =
                     App.getMissingImageHtml(
+                        question.plant,
                         question.plant.images?.[0]
                     );
             }
