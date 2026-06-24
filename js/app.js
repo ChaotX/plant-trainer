@@ -85,6 +85,13 @@ const App = {
                 "sources.yaml"
             );
 
+        if (!response.ok) {
+
+            throw new Error(
+                `sources.yaml nem található (${response.status})`
+            );
+        }
+
         const yamlText =
             await response.text();
 
