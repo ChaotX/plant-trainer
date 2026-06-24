@@ -275,13 +275,36 @@ const App = {
             + `&folder=${encodeURIComponent(this.currentFolderId)}`
             + `&path=${encodeURIComponent(relativePath)}`;
 
+        console.log(
+            "REQUEST URL:",
+            url
+        );
+
         const response =
             await fetch(
                 url
             );
 
+        const text =
+            await response.text();
+
+        console.log(
+            "RAW RESPONSE:",
+            text
+        );
+
         const data =
-            await response.json();
+            JSON.parse(text);
+
+        console.log(
+            "PARSED DATA:",
+            data
+        );
+
+        console.log(
+            "RETURNING:",
+            data.url
+        );
 
         return data.url;
     },
