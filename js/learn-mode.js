@@ -2,9 +2,19 @@ const LearnMode = {
 
     plants: [],
 
+    history: [],
+
     currentIndex: 0,
 
+    showNames: false,
+
     async start() {
+
+        this.showNames = false;
+
+        this.currentIndex = 0;
+
+        this.history = [];
 
         this.plants =
             [...App.plants];
@@ -26,6 +36,16 @@ const LearnMode = {
     },
 
     async render() {
+
+        const namesHiddenClass =
+            this.showNames
+                ? ""
+                : "hidden";
+
+        const toggleButtonText =
+            this.showNames
+                ? "🙈 Név elrejtése"
+                : "👁️ Név mutatása";
 
         const plant =
             this.plants[
@@ -66,7 +86,7 @@ const LearnMode = {
                     <button
                         id="showAnswerButton"
                     >
-                        👁️ Név mutatása
+                        ${toggleButtonText}
                     </button>
 
                 </div>
@@ -78,7 +98,7 @@ const LearnMode = {
 
                 <div
                     id="plantNames"
-                    class="plant-names hidden"
+                    class="plant-names ${namesHiddenClass}"
                 >
 
                     <div
@@ -134,8 +154,8 @@ const LearnMode = {
 
         try {
 
-            imageUrl =
-                await App.getImageUrl(
+            const imageUrl =
+                App.getImageUrl(
                     imagePath
                 );
 
@@ -176,26 +196,31 @@ const LearnMode = {
             )
             .addEventListener(
                 "click",
-                () => {
+                async () => {
 
-                    document
-                        .getElementById(
-                            "plantNames"
-                        )
-                        .classList
-                        .remove(
-                            "hidden"
-                        );
+                    this.showNames =
+                        !this.showNames;
+
+                    await this.render();
                 }
             );
 
         document
-            .getElementById(
-                "previousPlantButton"
-            )
-            .addEventListener(
-                "click",
-                async () => {
+        .getElementById(
+            "previousPlantButton"
+        )
+        .addEventListener(
+            "click",
+            async () => {
+
+                if (
+                    this.history.length > 0
+                ) {
+
+                    this.currentIndex =
+                        this.history.pop();
+
+                } else {
 
                     this.currentIndex--;
 
@@ -206,10 +231,11 @@ const LearnMode = {
                         this.currentIndex =
                             this.plants.length - 1;
                     }
-
-                    await this.render();
                 }
-            );
+                this.showNames = false;
+                await this.render();
+            }
+        );
 
         document
             .getElementById(
@@ -218,6 +244,9 @@ const LearnMode = {
             .addEventListener(
                 "click",
                 async () => {
+                    this.history.push(
+                        this.currentIndex
+                    );
 
                     this.currentIndex++;
 
@@ -228,7 +257,7 @@ const LearnMode = {
 
                         this.currentIndex = 0;
                     }
-
+                    this.showNames = false;
                     await this.render();
                 }
             );
@@ -241,12 +270,16 @@ const LearnMode = {
                 "click",
                 async () => {
 
+                    this.history.push(
+                        this.currentIndex
+                    );
+
                     this.currentIndex =
                         Math.floor(
                             Math.random()
                             * this.plants.length
                         );
-
+                    this.showNames = false;
                     await this.render();
                 }
             );
