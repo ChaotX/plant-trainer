@@ -1,4 +1,6 @@
 sources:
-  Saját növénygyűjtemény:
+  Teljes növénygyüjtemény:
+    drive_folder: https://drive.google.com/drive/folders/1Cfhin_2ZcYn05lz02Ob4YTwyo7-UPmjZ
+  Teszt növénygyűjtemény:
     drive_folder: https://drive.google.com/drive/folders/1qAXWa63tDdvMC3al9o4XL3W5j0mheaJu
-    
+  
