@@ -118,7 +118,9 @@ const App = {
     },
 
     showFirstPlant() {
-
+        console.log(
+            this.plants[0]
+        );
         if (
             this.plants.length === 0
         ) {
@@ -166,19 +168,27 @@ const App = {
         );
     },
 
-    loadImage(
+    async loadImage(
         imagePath
     ) {
 
         const url =
-            `${API_URL}`
-            + `?action=image-url`
-            + `&folder=${encodeURIComponent(FOLDER_ID)}`
-            + `&path=${encodeURIComponent(imagePath)}`;
+            this.buildImageUrl(
+                imagePath
+            );
+
+        const response =
+            await fetch(
+                url
+            );
+
+        const data =
+            await response.json();
 
         document.getElementById(
             "plantImage"
-        ).src = url;
+        ).src =
+            data.url;
     }
 };
 
