@@ -1,352 +1,195 @@
-const App = {
+const API_URL =
+    "https://script.google.com/macros/s/AKfycbxBfssV4rJFYwVjUqNe2oq87ZBto61u-7zf0V1LYZoyR-ISrjUXRCWMzkOuK_hqEBaW/exec";
 
-    links: {},
+const FOLDER_ID =
+    "1qAXWa63tDdvMC3al9o4XL3W5j0mheaJu";
+
+
+const App = {
 
     settings: {},
 
     plants: [],
 
-    imageUrls: new Map(),
-
-    currentSource: null,
-
     async initialize() {
 
-        document
-            .getElementById(
-                "loadSourceButton"
-            )
-            .addEventListener(
-                "click",
-                () => this.loadSelectedSource()
-            );
+        try {
 
-        document
-            .getElementById(
-                "changeSourceButton"
-            )
-            .addEventListener(
-                "click",
-                () => this.changeSource()
-            );
+            await this.loadData();
 
-        document
-            .getElementById(
-                "studyModeButton"
-            )
-            .addEventListener(
-                "click",
-                () => StudyMode.start()
-            );
+            this.showFirstPlant();
 
-        document
-            .getElementById(
-                "multipleChoiceButton"
-            )
-            .addEventListener(
-                "click",
-                () =>
-                    MultipleChoiceQuiz.start()
-            );
+        } catch (error) {
 
-        document
-            .getElementById(
-                "freeTextButton"
-            )
-            ?.addEventListener(
-                "click",
-                () =>
-                    FreeTextQuiz.start()
-            );
+            console.error(error);
 
-        document
-            .getElementById(
-                "statsButton"
-            )
-            .addEventListener(
-                "click",
-                () => Statistics.show()
-            );
-
-        await this.loadLinksYaml();
+            document.getElementById(
+                "content"
+            ).innerHTML = `
+                <h2>Hiba</h2>
+                <pre>${error}</pre>
+            `;
+        }
     },
 
-    async loadLinksYaml() {
+    async loadData() {
+
+        const plantsYaml =
+            await this.fetchTextFile(
+                "plants.yaml"
+            );
+
+        const settingsYaml =
+            await this.fetchTextFile(
+                "settings.yaml"
+            );
+
+        const plantsData =
+            jsyaml.load(
+                plantsYaml
+            );
+
+        const settingsData =
+            jsyaml.load(
+                settingsYaml
+            );
+
+        this.settings =
+            settingsData;
+
+        if (
+            Array.isArray(
+                plantsData
+            )
+        ) {
+
+            this.plants =
+                plantsData;
+
+        } else {
+
+            this.plants =
+                plantsData.plants || [];
+        }
+
+        console.log(
+            "Plants loaded:",
+            this.plants.length
+        );
+    },
+
+    async fetchTextFile(
+        relativePath
+    ) {
+
+        const url =
+            `${API_URL}`
+            + `?action=file`
+            + `&folder=${encodeURIComponent(FOLDER_ID)}`
+            + `&path=${encodeURIComponent(relativePath)}`;
 
         const response =
             await fetch(
-                "links.yaml"
+                url
             );
 
-        if (!response.ok) {
-
-            throw new Error(
-                "links.yaml nem tölthető be"
-            );
-        }
-
-        const text =
-            await response.text();
-
-        this.links =
-            jsyaml.load(text);
-
-        const selector =
-            document.getElementById(
-                "sourceSelector"
-            );
-
-        selector.innerHTML = "";
-
-        const sources =
-            this.links.sources || {};
-
-        for (
-            const sourceName
-            of Object.keys(sources)
+        if (
+            !response.ok
         ) {
 
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                sourceName;
-
-            option.textContent =
-                sourceName;
-
-            selector.appendChild(
-                option
+            throw new Error(
+                `Failed to load ${relativePath}`
             );
         }
 
-        document
-            .getElementById(
-                "loadStatus"
-            )
-            .textContent =
-            `${Object.keys(sources).length} forrás található`;
+        return await response.text();
     },
 
-    async loadSelectedSource() {
+    buildImageUrl(
+        imagePath
+    ) {
 
-        const selector =
+        return (
+            `${API_URL}`
+            + `?action=image-url`
+            + `&folder=${encodeURIComponent(FOLDER_ID)}`
+            + `&path=${encodeURIComponent(imagePath)}`
+        );
+    },
+
+    showFirstPlant() {
+
+        if (
+            this.plants.length === 0
+        ) {
+
             document.getElementById(
-                "sourceSelector"
-            );
-
-        const sourceName =
-            selector.value;
-
-        if (!sourceName) {
+                "content"
+            ).innerHTML =
+                "<h2>Nincs növény.</h2>";
 
             return;
         }
 
-        await this.loadSource(
-            sourceName
-        );
-    },
+        const plant =
+            this.plants[0];
 
-    async loadSource(
-        sourceName
-    ) {
+        const latinName =
+            plant.names?.la?.[0]
+            || "Ismeretlen";
 
-        const source =
-            this.links.sources[
-            sourceName
-            ];
-
-        if (!source) {
-
-            throw new Error(
-                `Ismeretlen forrás: ${sourceName}`
-            );
-        }
-
-        document
-            .getElementById(
-                "loadStatus"
-            )
-            .textContent =
-            "Betöltés...";
-
-        this.currentSource =
-            sourceName;
-
-        const plantsResponse =
-            await fetch(
-                source.plants_yaml
-            );
-
-        const settingsResponse =
-            await fetch(
-                source.settings_yaml
-            );
-
-        if (
-            !plantsResponse.ok
-        ) {
-
-            throw new Error(
-                "plants.yaml letöltése sikertelen"
-            );
-        }
-
-        if (
-            !settingsResponse.ok
-        ) {
-
-            throw new Error(
-                "settings.yaml letöltése sikertelen"
-            );
-        }
-
-        const plantsText =
-            await plantsResponse.text();
-
-        const settingsText =
-            await settingsResponse.text();
-
-        const plantsYaml =
-            jsyaml.load(
-                plantsText
-            );
-
-        const settingsYaml =
-            jsyaml.load(
-                settingsText
-            );
-
-        this.settings =
-            settingsYaml;
-
-        this.plants =
-            plantsYaml.plants;
-
-        this.imageUrls.clear();
-
-        for (
-            const [path, url]
-            of Object.entries(
-                source.images
-            )
-        ) {
-
-            this.imageUrls.set(
-                path,
-                url
-            );
-
-            const filename =
-                path.split("/")
-                    .pop();
-
-            this.imageUrls.set(
-                filename,
-                url
-            );
-        }
-
-        document
-            .getElementById(
-                "appTitle"
-            )
-            .innerText =
-            this.settings.title
-            || "🌿 Növényfelismerő";
-
-        document
-            .getElementById(
-                "startupScreen"
-            )
-            .classList.add(
-                "hidden"
-            );
-
-        document
-            .getElementById(
-                "mainMenu"
-            )
-            .classList.remove(
-                "hidden"
-            );
-
-        document
-            .getElementById(
-                "loadStatus"
-            )
-            .textContent =
-            "";
-
-        console.log(
-            `Betöltve: ${sourceName}`
-        );
-
-        console.log(
-            `Növények: ${this.plants.length}`
-        );
+        const imagePath =
+            plant.images?.[0];
 
         document.getElementById(
             "content"
         ).innerHTML = `
-            <h2>${this.plants[0].names.la[0]}</h2>
+            <h2>${latinName}</h2>
+
+            <p>
+                Kép útvonal:
+                ${imagePath}
+            </p>
+
             <img
-                src="${this.getImageUrl(this.plants[0].images[0])}"
-                class="plant-image"
+                id="plantImage"
+                style="
+                    max-width: 600px;
+                    width: 100%;
+                    border-radius: 12px;
+                "
             >
         `;
+
+        this.loadImage(
+            imagePath
+        );
     },
 
-    changeSource() {
-
-        document
-            .getElementById(
-                "mainMenu"
-            )
-            .classList.add(
-                "hidden"
-            );
-
-        document
-            .getElementById(
-                "startupScreen"
-            )
-            .classList.remove(
-                "hidden"
-            );
-
-        document
-            .getElementById(
-                "content"
-            )
-            .innerHTML = "";
-    },
-
-    getImageUrl(
+    async loadImage(
         imagePath
     ) {
 
         const url =
-            this.imageUrls.get(
+            this.buildImageUrl(
                 imagePath
             );
 
-        if (!url) {
-
-            console.warn(
-                "Kép nem található:",
-                imagePath
+        const response =
+            await fetch(
+                url
             );
 
-            return "";
-        }
+        const data =
+            await response.json();
 
-        return url;
+        document.getElementById(
+            "plantImage"
+        ).src =
+            data.url;
     }
 };
+
 
 window.addEventListener(
     "DOMContentLoaded",
