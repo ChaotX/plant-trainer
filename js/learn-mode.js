@@ -187,19 +187,35 @@ const LearnMode = {
     registerEvents() {
 
         document
-            .getElementById(
-                "showAnswerButton"
-            )
-            .addEventListener(
-                "click",
-                async () => {
+        .getElementById(
+            "showAnswerButton"
+        )
+        .addEventListener(
+            "click",
+            () => {
 
-                    this.showNames =
-                        !this.showNames;
+                this.showNames =
+                    !this.showNames;
 
-                    await this.render();
-                }
-            );
+                document
+                    .getElementById(
+                        "plantNames"
+                    )
+                    .classList
+                    .toggle(
+                        "hidden"
+                    );
+
+                document
+                    .getElementById(
+                        "showAnswerButton"
+                    )
+                    .textContent =
+                    this.showNames
+                        ? "🙈 Név elrejtése"
+                        : "👁️ Név mutatása";
+            }
+        );
 
         document
         .getElementById(
