@@ -1,146 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hu">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Növényfelismerő</title>
+        <link rel="stylesheet" href="style.css" />
+        <script src="vendor/js-yaml.min.js"></script>
+        <script src="js/image-manager.js"></script>
+        <script src="js/history-manager.js"></script>
+        <script src="js/learn-mode.js"></script>
+        <script src="js/multiple-choice-quiz.js"></script>
+        <script src="js/free-text-quiz.js"></script>
+        <script src="js/settings.js"></script>
+        <script src="js/app.js" defer></script>
+    </head>
+    <body>
+        <header>
+            <h1 id="appTitle">🌿 Növényfelismerő</h1>
+        </header>
+        <main>
+            <!-- ============================================ -->
+            <!-- FORRÁS VÁLASZTÓ -->
+            <!-- ============================================ -->
+            <section id="startupScreen">
+                <h2>Adatforrás kiválasztása</h2>
+                <p>Válassz egy növény adatbázist.</p>
+                <select id="sourceSelector">
+                    <option>Betöltés...</option>
+                </select>
+                <br />
+                <button id="loadSourceButton">Betöltés</button>
+                <div id="loadStatus"></div>
+            </section>
 
-<head>
+            <!-- ============================================ -->
+            <!-- FŐMENÜ -->
+            <!-- ============================================ -->
+            <section id="mainMenu" class="hidden">
+                <h2>Menü</h2>
+                <div class="menu-buttons">
+                    <button id="studyModeButton">📚 Tanuló mód</button>
+                    <button id="multipleChoiceButton">✅ Feleletválasztós kvíz</button>
+                    <button id="freeTextButton">✏️ Beírásos kvíz</button>
+                    <button id="settingsButton">⚙️ Beállítások</button>
+                </div>
+                <hr />
+                <button id="changeSourceButton">🔄 Adatforrás váltása</button>
+            </section>
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Növényfelismerő
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
-    <script src="vendor/js-yaml.min.js"></script>
-
-    <script src="js/image-manager.js"></script>
-    <script src="js/history-manager.js"></script>
-
-    <script src="js/learn-mode.js"></script>
-    <script src="js/multiple-choice-quiz.js"></script>
-    <script src="js/free-text-quiz.js"></script>
-
-    <script
-        src="js/app.js"
-        defer
-    ></script>
-
-</head>
-
-<body>
-
-<header>
-
-    <h1 id="appTitle">
-        🌿 Növényfelismerő
-    </h1>
-
-</header>
-
-<main>
-
-    <!-- ============================================ -->
-    <!-- FORRÁS VÁLASZTÓ -->
-    <!-- ============================================ -->
-
-    <section id="startupScreen">
-
-        <h2>
-            Adatforrás kiválasztása
-        </h2>
-
-        <p>
-            Válassz egy növény adatbázist.
-        </p>
-
-        <select id="sourceSelector">
-
-            <option>
-                Betöltés...
-            </option>
-
-        </select>
-
-        <br>
-
-        <button id="loadSourceButton">
-
-            Betöltés
-
-        </button>
-
-        <div id="loadStatus">
-
-        </div>
-
-    </section>
-
-    <!-- ============================================ -->
-    <!-- FŐMENÜ -->
-    <!-- ============================================ -->
-
-    <section
-        id="mainMenu"
-        class="hidden"
-    >
-
-        <h2>
-            Menü
-        </h2>
-
-        <div class="menu-buttons">
-
-            <button
-                id="studyModeButton"
-            >
-                📚 Tanuló mód
-            </button>
-
-            <button
-                id="multipleChoiceButton"
-            >
-                ✅ Feleletválasztós kvíz
-            </button>
-
-            <button
-                id="freeTextButton"
-            >
-                ✏️ Beírásos kvíz
-            </button>
-
-        </div>
-
-        <hr>
-
-        <button
-            id="changeSourceButton"
-        >
-            🔄 Adatforrás váltása
-        </button>
-
-    </section>
-
-    <!-- ============================================ -->
-    <!-- TARTALOM -->
-    <!-- ============================================ -->
-
-    <section
-        id="content"
-        class="hidden"
-    >
-
-    </section>
-
-</main>
-
-</body>
-
+            <!-- ============================================ -->
+            <!-- TARTALOM -->
+            <!-- ============================================ -->
+            <section id="content" class="hidden"></section>
+        </main>
+    </body>
 </html>
