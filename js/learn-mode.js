@@ -191,61 +191,70 @@ const LearnMode = {
 `;
 
         this.registerEvents();
-        try {
-
-            const imageData =
-                await ImageManager.getImage(
-                    entry.imagePath
-                );
-
-            if (
-                token !==
-                this.renderToken
-            ) {
-
-                return;
-
-            }
-
-            document
-                .getElementById(
-                    "plantImageContainer"
-                )
-                .innerHTML = `
-
-<img
-    src="${imageData}"
-    class="plant-image"
->
-
-`;
-
-        } catch (error) {
-
-            if (
-                token !==
-                this.renderToken
-            ) {
-
-                return;
-
-            }
-
-            document
-                .getElementById(
-                    "plantImageContainer"
-                )
-                .innerHTML =
-                App.getMissingImageHtml(
-                    plant,
-                    entry.imagePath
-                );
-
-        }
-
         this.preloadNext();
-
         this.preloadRandom();
+
+        requestAnimationFrame(
+            () => {
+
+                ImageManager
+                    .getImage(
+                        entry.imagePath
+                    )
+                    .then(
+                        imageData => {
+
+                            if (
+                                token !==
+                                this.renderToken
+                            ) {
+
+                                return;
+
+                            }
+
+                            document
+                                .getElementById(
+                                    "plantImageContainer"
+                                )
+                                .innerHTML = `
+
+        <img
+            src="${imageData}"
+            class="plant-image"
+        >
+
+        `;
+
+                        }
+                    )
+                    .catch(
+                        () => {
+
+                            if (
+                                token !==
+                                this.renderToken
+                            ) {
+
+                                return;
+
+                            }
+
+                            document
+                                .getElementById(
+                                    "plantImageContainer"
+                                )
+                                .innerHTML =
+                                App.getMissingImageHtml(
+                                    plant,
+                                    entry.imagePath
+                                );
+
+                        }
+                    );
+
+            }
+        );
 
     },
 
@@ -412,7 +421,7 @@ const LearnMode = {
 
     },
 
-    async preloadNext() {
+    preloadNext() {
 
         if (
             HistoryManager.canGoNext()
@@ -423,7 +432,7 @@ const LearnMode = {
                     HistoryManager.position + 1
                 ];
 
-            await ImageManager.preload(
+            ImageManager.preload(
                 entry.imagePath
             );
 
@@ -448,7 +457,7 @@ const LearnMode = {
                 nextIndex
             ];
 
-        await ImageManager.preload(
+        ImageManager.preload(
 
             ImageManager.pickRandomImage(
                 plant
@@ -458,9 +467,9 @@ const LearnMode = {
 
     },
 
-    async preloadRandom() {
+    preloadRandom() {
 
-        await ImageManager.prepareRandom(
+        ImageManager.prepareRandom(
             this.plants
         );
 
