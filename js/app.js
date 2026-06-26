@@ -11,8 +11,6 @@ const App = {
 
     plants: [],
 
-    imageCache: {},
-
     settings: {},
 
     currentFolderId: null,
@@ -20,6 +18,10 @@ const App = {
     async initialize() {
 
         try {
+
+            ImageManager.initialize(
+                this
+            );
 
             await this.loadSources();
 
@@ -195,6 +197,8 @@ const App = {
                     folderUrl
                 );
 
+            ImageManager.clear();
+
             document.getElementById(
                 "loadStatus"
             ).innerText =
@@ -307,67 +311,10 @@ const App = {
     async getImageUrl(
         relativePath
     ) {
-        if (
-            this.imageCache[
-                relativePath
-            ]
-        ) {
 
-            console.log(
-                "CACHE HIT",
-                relativePath
-            );
-
-            return this.imageCache[
-                relativePath
-            ];
-        }
-
-        console.log(
-            "DOWNLOAD",
+        return await ImageManager.getImage(
             relativePath
         );
-
-        const file =
-            this.imageIndex[
-                relativePath
-            ];
-
-        if (!file) {
-
-            throw new Error(
-                `Kép nem található: ${relativePath}`
-            );
-        }
-
-        const response =
-            await fetch(
-                API_URL
-                + "?action=image"
-                + "&id="
-                + encodeURIComponent(
-                    file.id
-                )
-            );
-
-        const data =
-            await response.json();
-
-        const imageData =
-            `data:${data.mimeType};base64,${data.data}`;
-
-        const img =
-            new Image();
-
-        img.src =
-            imageData;
-
-        this.imageCache[
-            relativePath
-        ] =
-            imageData;
-
-        return imageData;
     },
 
     extractFolderId(

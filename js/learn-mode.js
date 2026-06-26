@@ -2,24 +2,19 @@ const LearnMode = {
 
     plants: [],
 
-    history: [],
-
     currentIndex: 0,
 
-    nextRandomIndex: null,
-
     showNames: false,
+
+    renderToken: 0,
 
     async start() {
 
         this.showNames = false;
 
-        this.currentIndex = 0;
-
-        this.history = [];
-
-        this.plants =
-            [...App.plants];
+        this.plants = [
+            ...App.plants
+        ];
 
         if (
             App.settings.study?.shuffle
@@ -30,12 +25,68 @@ const LearnMode = {
             );
         }
 
+        HistoryManager.clear();
+
+        this.currentIndex = 0;
+
+        const firstPlant =
+            this.plants[
+                this.currentIndex
+            ];
+
+        HistoryManager.push({
+
+            plantIndex:
+                this.currentIndex,
+
+            imagePath:
+                ImageManager.pickRandomImage(
+                    firstPlant
+                )
+
+        });
+
         App.showContent();
 
         await this.render();
+
+    },
+
+    getCurrentEntry() {
+
+        return HistoryManager.current();
+
+    },
+
+    getCurrentPlant() {
+
+        return this.plants[
+            this.getCurrentEntry()
+                .plantIndex
+        ];
+
     },
 
     async render() {
+
+        const token =
+            ++this.renderToken;
+
+        const entry =
+            this.getCurrentEntry();
+
+        const plant =
+            this.plants[
+                entry.plantIndex
+            ];
+
+        const latinName =
+            plant.names?.la?.[0]
+            || "Ismeretlen";
+
+        const hungarianName =
+            plant.names?.hu?.[0]
+            || "";
 
         const namesHiddenClass =
             this.showNames
@@ -47,151 +98,164 @@ const LearnMode = {
                 ? "🙈 Név elrejtése"
                 : "👁️ Név mutatása";
 
-        const plant =
-            this.plants[
-                this.currentIndex
-            ];
-
-        console.log(
-            "PLANT:",
-            plant
-        );
-
-        console.log(
-            "IMAGE PATH:",
-            plant.images?.[0]
-        );
-
-        const latinName =
-            plant.names?.la?.[0]
-            || "Ismeretlen";
-
-        const hungarianName =
-            plant.names?.hu?.[0]
-            || "";
-
-        const imagePath =
-            plant.images?.[0];
-
         document
             .getElementById(
                 "content"
             )
             .innerHTML = `
 
-            <div class="plant-card">
+<div class="plant-card">
 
-                <div class="center">
+    <div class="center">
 
-                    <button
-                        id="showAnswerButton"
-                    >
-                        ${toggleButtonText}
-                    </button>
+        <button
+            id="showAnswerButton"
+        >
+            ${toggleButtonText}
+        </button>
 
-                </div>
+    </div>
 
-                <img
-                    id="plantImage"
-                    class="plant-image"
-                >
+    <div
+        id="plantImageContainer"
+    >
 
-                <div
-                    id="plantNames"
-                    class="plant-names ${namesHiddenClass}"
-                >
+        <div
+            class="plant-image loading"
+        >
 
-                    <div
-                        class="plant-latin"
-                    >
-                        ${latinName}
-                    </div>
+            Kép betöltése...
 
-                    <div
-                        class="plant-hungarian"
-                    >
-                        ${hungarianName}
-                    </div>
+        </div>
 
-                </div>
+    </div>
 
-                <div
-                    class="navigation-buttons"
-                >
+    <div
+        id="plantNames"
+        class="plant-names ${namesHiddenClass}"
+    >
 
-                    <button
-                        id="previousPlantButton"
-                    >
-                        ⬅️ Előző
-                    </button>
+        <div class="plant-latin">
 
-                    <button
-                        id="randomPlantButton"
-                    >
-                        🎲 Véletlen
-                    </button>
+            ${latinName}
 
-                    <button
-                        id="nextPlantButton"
-                    >
-                        Következő ➡️
-                    </button>
+        </div>
 
-                </div>
+        <div class="plant-hungarian">
 
-                <hr>
+            ${hungarianName}
 
-                <button
-                    id="backToMenuButton"
-                >
-                    🏠 Menü
-                </button>
+        </div>
 
-            </div>
-        `;
-        
+    </div>
+
+    <div class="navigation-buttons">
+
+        <button
+            id="previousPlantButton"
+        >
+
+            ⬅️ Előző
+
+        </button>
+
+        <button
+            id="randomPlantButton"
+        >
+
+            🎲 Véletlen
+
+        </button>
+
+        <button
+            id="nextPlantButton"
+        >
+
+            Következő ➡️
+
+        </button>
+
+    </div>
+
+    <hr>
+
+    <button
+        id="backToMenuButton"
+    >
+
+        🏠 Menü
+
+    </button>
+
+</div>
+`;
+
+        this.registerEvents();
         try {
 
-            const imageUrl =
-                await App.getImageUrl(
-                    imagePath
+            const imageData =
+                await ImageManager.getImage(
+                    entry.imagePath
                 );
+
+            if (
+                token !==
+                this.renderToken
+            ) {
+
+                return;
+
+            }
 
             document
                 .getElementById(
-                    "plantImage"
+                    "plantImageContainer"
                 )
-                .src =
-                imageUrl;
+                .innerHTML = `
+
+<img
+    src="${imageData}"
+    class="plant-image"
+>
+
+`;
 
         } catch (error) {
 
+            if (
+                token !==
+                this.renderToken
+            ) {
+
+                return;
+
+            }
+
             document
                 .getElementById(
-                    "plantImage"
+                    "plantImageContainer"
                 )
-                .outerHTML =
+                .innerHTML =
                 App.getMissingImageHtml(
                     plant,
-                    imagePath
+                    entry.imagePath
                 );
-        }
 
-        this.registerEvents();
+        }
 
         this.preloadNext();
 
         this.preloadRandom();
+
     },
 
     registerEvents() {
 
         document
-        .getElementById(
-            "showAnswerButton"
-        )
-        .addEventListener(
-            "click",
+            .getElementById(
+                "showAnswerButton"
+            )
+            .onclick =
             () => {
 
                 this.showNames =
@@ -214,184 +278,232 @@ const LearnMode = {
                     this.showNames
                         ? "🙈 Név elrejtése"
                         : "👁️ Név mutatása";
-            }
-        );
+
+            };
 
         document
-        .getElementById(
-            "previousPlantButton"
-        )
-        .addEventListener(
-            "click",
+            .getElementById(
+                "previousPlantButton"
+            )
+            .onclick =
             async () => {
 
+                const entry =
+                    HistoryManager.previous();
+
                 if (
-                    this.history.length > 0
+                    !entry
                 ) {
 
-                    this.currentIndex =
-                        this.history.pop();
+                    return;
 
-                } else {
-
-                    this.currentIndex--;
-
-                    if (
-                        this.currentIndex < 0
-                    ) {
-
-                        this.currentIndex =
-                            this.plants.length - 1;
-                    }
                 }
-                this.showNames = false;
+
+                this.currentIndex =
+                    entry.plantIndex;
+
+                this.showNames =
+                    false;
+
                 await this.render();
-            }
-        );
+
+            };
 
         document
             .getElementById(
                 "nextPlantButton"
             )
-            .addEventListener(
-                "click",
-                async () => {
-                    this.history.push(
-                        this.currentIndex
-                    );
+            .onclick =
+            async () => {
 
-                    this.currentIndex++;
+                if (
+                    HistoryManager.canGoNext()
+                ) {
 
-                    if (
-                        this.currentIndex >=
-                        this.plants.length
-                    ) {
+                    const entry =
+                        HistoryManager.next();
 
-                        this.currentIndex = 0;
-                    }
-                    this.showNames = false;
+                    this.currentIndex =
+                        entry.plantIndex;
+
+                    this.showNames =
+                        false;
+
                     await this.render();
-                }
-            );
 
+                    return;
+
+                }
+
+                this.currentIndex++;
+
+                if (
+                    this.currentIndex
+                    >=
+                    this.plants.length
+                ) {
+
+                    this.currentIndex =
+                        0;
+
+                }
+
+                const plant =
+                    this.plants[
+                        this.currentIndex
+                    ];
+
+                HistoryManager.push({
+
+                    plantIndex:
+                        this.currentIndex,
+
+                    imagePath:
+                        ImageManager.pickRandomImage(
+                            plant
+                        )
+
+                });
+
+                this.showNames =
+                    false;
+
+                await this.render();
+
+            };
         document
             .getElementById(
                 "randomPlantButton"
             )
-            .addEventListener(
-                "click",
-                async () => {
+            .onclick =
+            async () => {
 
-                    this.history.push(
-                        this.currentIndex
-                    );
+                await ImageManager.prepareRandom(
+                    this.plants
+                );
 
-                    this.currentIndex =
-                        this.nextRandomIndex;
-                    this.showNames = false;
-                    await this.render();
-                }
-            );
+                const entry =
+                    ImageManager.consumeRandom();
+
+                this.currentIndex =
+                    entry.plantIndex;
+
+                HistoryManager.push(
+                    entry
+                );
+
+                this.showNames =
+                    false;
+
+                await this.render();
+
+            };
 
         document
             .getElementById(
                 "backToMenuButton"
             )
-            .addEventListener(
-                "click",
-                () => {
+            .onclick =
+            () => {
 
-                    App.showMainMenu();
-                }
-            );
+                App.showMainMenu();
+
+            };
+
     },
 
     async preloadNext() {
 
-        const nextIndex =
-            (this.currentIndex + 1)
-            %
-            this.plants.length;
+        if (
+            HistoryManager.canGoNext()
+        ) {
 
-        const nextPlant =
+            const entry =
+                HistoryManager.history[
+                    HistoryManager.position + 1
+                ];
+
+            await ImageManager.preload(
+                entry.imagePath
+            );
+
+            return;
+
+        }
+
+        let nextIndex =
+            this.currentIndex + 1;
+
+        if (
+            nextIndex >=
+            this.plants.length
+        ) {
+
+            nextIndex = 0;
+
+        }
+
+        const plant =
             this.plants[
                 nextIndex
             ];
 
-        const imagePath =
-            nextPlant.images?.[0];
+        await ImageManager.preload(
 
-        if (!imagePath) {
+            ImageManager.pickRandomImage(
+                plant
+            )
 
-            return;
-        }
+        );
 
-        try {
-
-            await App.getImageUrl(
-                imagePath
-            );
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-        }
-    },
-
-    prepareRandom() {
-
-        this.nextRandomIndex =
-            Math.floor(
-                Math.random()
-                * this.plants.length
-            );
     },
 
     async preloadRandom() {
 
-        this.prepareRandom();
-
-        const plant =
-            this.plants[
-                this.nextRandomIndex
-            ];
-
-        const imagePath =
-            plant.images?.[0];
-
-        if (!imagePath) {
-
-            return;
-        }
-
-        await App.getImageUrl(
-            imagePath
+        await ImageManager.prepareRandom(
+            this.plants
         );
-    },
 
-    shuffle(array) {
+    },
+    shuffle(
+        array
+    ) {
 
         for (
-            let i = array.length - 1;
+
+            let i =
+                array.length - 1;
+
             i > 0;
+
             i--
+
         ) {
 
             const j =
                 Math.floor(
+
                     Math.random()
                     * (i + 1)
+
                 );
 
             [
+
                 array[i],
+
                 array[j]
+
             ] = [
+
                 array[j],
+
                 array[i]
+
             ];
+
         }
+
     }
+
 };

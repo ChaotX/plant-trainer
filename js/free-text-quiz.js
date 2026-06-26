@@ -6,6 +6,8 @@ const FreeTextQuiz = {
 
     score: 0,
 
+    renderToken: 0,
+
     async start() {
 
         this.currentQuestion = 0;
@@ -18,6 +20,7 @@ const FreeTextQuiz = {
         App.showContent();
 
         await this.render();
+
     },
 
     buildQuestions() {
@@ -45,48 +48,35 @@ const FreeTextQuiz = {
 
                     plant,
 
+                    imagePath:
+                        ImageManager.pickRandomImage(
+                            plant
+                        ),
+
                     correctAnswers:
                         plant.names?.la
                         || [],
 
-                    selectedAnswer: null,
+                    selectedAnswer:
+                        null,
 
-                    isCorrect: null
+                    isCorrect:
+                        null
+
                 })
             );
+
     },
 
     async render() {
+
+        const token =
+            ++this.renderToken;
 
         const question =
             this.questions[
                 this.currentQuestion
             ];
-
-        let imageHtml;
-
-        try {
-
-            const imageUrl =
-                await App.getImageUrl(
-                    question.plant.images?.[0]
-                );
-
-            imageHtml = `
-                <img
-                    src="${imageUrl}"
-                    class="plant-image"
-                >
-            `;
-
-        } catch (error) {
-
-            imageHtml =
-                App.getMissingImageHtml(
-                    question.plant,
-                    question.plant.images?.[0]
-                );
-        }
 
         document
             .getElementById(
@@ -94,47 +84,64 @@ const FreeTextQuiz = {
             )
             .innerHTML = `
 
-            <div class="quiz-progress">
+<div class="quiz-progress">
 
-                ${this.currentQuestion + 1}
-                /
-                ${this.questions.length}
+    ${this.currentQuestion + 1}
+    /
+    ${this.questions.length}
 
-            </div>
+</div>
 
-            ${imageHtml}
+<div
+    id="quizImageContainer"
+>
 
-            <div
-                class="free-text-answer"
-            >
+    <div
+        class="plant-image loading"
+    >
 
-                <input
-                    id="answerInput"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="Latin név..."
-                >
+        Kép betöltése...
 
-                <button
-                    id="submitAnswerButton"
-                >
-                    Ellenőrzés
-                </button>
+    </div>
 
-            </div>
+</div>
 
-            <div
-                id="answerResult"
-            ></div>
+<div
+    class="free-text-answer"
+>
 
-            <hr>
+    <input
+        id="answerInput"
+        type="text"
+        autocomplete="off"
+        placeholder="Latin név..."
+    >
 
-            <button
-                id="backToMenuButton"
-            >
-                🏠 Menü
-            </button>
-        `;
+    <button
+        id="submitAnswerButton"
+    >
+
+        Ellenőrzés
+
+    </button>
+
+</div>
+
+<div
+    id="answerResult"
+></div>
+
+<hr>
+
+<button
+    id="backToMenuButton"
+>
+
+    🏠 Menü
+
+</button>
+
+`;
 
         this.registerEvents(
             question
@@ -145,6 +152,64 @@ const FreeTextQuiz = {
                 "answerInput"
             )
             .focus();
+
+        try {
+
+            const image =
+                await ImageManager.getImage(
+                    question.imagePath
+                );
+
+            if (
+                token !==
+                this.renderToken
+            ) {
+
+                return;
+
+            }
+
+            document
+                .getElementById(
+                    "quizImageContainer"
+                )
+                .innerHTML = `
+
+<img
+    src="${image}"
+    class="plant-image"
+>
+
+`;
+
+        } catch {
+
+            if (
+                token !==
+                this.renderToken
+            ) {
+
+                return;
+
+            }
+
+            document
+                .getElementById(
+                    "quizImageContainer"
+                )
+                .innerHTML =
+                App.getMissingImageHtml(
+
+                    question.plant,
+
+                    question.imagePath
+
+                );
+
+        }
+
+        this.preloadNext();
+
     },
 
     registerEvents(
@@ -163,9 +228,12 @@ const FreeTextQuiz = {
                 const answer =
                     input.value.trim();
 
-                if (!answer) {
+                if (
+                    !answer
+                ) {
 
                     return;
+
                 }
 
                 const isCorrect =
@@ -187,54 +255,55 @@ const FreeTextQuiz = {
                 question.isCorrect =
                     isCorrect;
 
-                if (isCorrect) {
+                if (
+                    isCorrect
+                ) {
 
                     this.score++;
+
                 }
 
                 this.showAnswer(
                     question
                 );
+
             };
 
         document
             .getElementById(
                 "submitAnswerButton"
             )
-            .addEventListener(
-                "click",
-                submit
-            );
+            .onclick =
+            submit;
 
         document
             .getElementById(
                 "answerInput"
             )
-            .addEventListener(
-                "keydown",
-                e => {
+            .onkeydown =
+            e => {
 
-                    if (
-                        e.key === "Enter"
-                    ) {
+                if (
+                    e.key ===
+                    "Enter"
+                ) {
 
-                        submit();
-                    }
+                    submit();
+
                 }
-            );
+
+            };
 
         document
             .getElementById(
                 "backToMenuButton"
             )
-            .addEventListener(
-                "click",
-                () =>
-                    App.showMainMenu()
-            );
-    },
+            .onclick =
+            () =>
+                App.showMainMenu();
 
-    showAnswer(
+    },
+        showAnswer(
         question
     ) {
 
@@ -251,34 +320,37 @@ const FreeTextQuiz = {
             )
             .innerHTML = `
 
-            <p>
+<p>
 
-                ${
-                    question.isCorrect
-                        ? "✅ Helyes"
-                        : "❌ Hibás"
-                }
+    ${
+        question.isCorrect
+            ? "✅ Helyes"
+            : "❌ Hibás"
+    }
 
-            </p>
+</p>
 
-            <p>
+<p>
 
-                Helyes válasz:
+    Helyes válasz:
 
-                <strong>
+    <strong>
 
-                    ${question.correctAnswers.join(", ")}
+        ${question.correctAnswers.join(", ")}
 
-                </strong>
+    </strong>
 
-            </p>
+</p>
 
-            <button
-                id="nextQuestionButton"
-            >
-                ${buttonText}
-            </button>
-        `;
+<button
+    id="nextQuestionButton"
+>
+
+    ${buttonText}
+
+</button>
+
+`;
 
         document
             .getElementById(
@@ -296,13 +368,37 @@ const FreeTextQuiz = {
             .getElementById(
                 "nextQuestionButton"
             )
-            .addEventListener(
-                "click",
-                async () => {
+            .onclick =
+            async () => {
 
-                    await this.nextQuestion();
-                }
-            );
+                await this.nextQuestion();
+
+            };
+
+    },
+
+    async preloadNext() {
+
+        const next =
+            this.currentQuestion + 1;
+
+        if (
+            next >=
+            this.questions.length
+        ) {
+
+            return;
+
+        }
+
+        await ImageManager.preload(
+
+            this.questions[
+                next
+            ].imagePath
+
+        );
+
     },
 
     async nextQuestion() {
@@ -310,124 +406,148 @@ const FreeTextQuiz = {
         this.currentQuestion++;
 
         if (
-            this.currentQuestion >=
+
+            this.currentQuestion
+            >=
             this.questions.length
+
         ) {
 
             await this.showResults();
 
             return;
+
         }
 
         await this.render();
+
     },
 
     async showResults() {
 
         let html = `
 
-            <h2>
-                Eredmény
-            </h2>
+<h2>
 
-            <p>
+    Eredmény
 
-                ${this.score}
-                /
-                ${this.questions.length}
+</h2>
 
-            </p>
+<p>
 
-            <hr>
-        `;
+    ${this.score}
+    /
+    ${this.questions.length}
+
+</p>
+
+<hr>
+
+`;
 
         for (
+
             const question
             of this.questions
+
         ) {
 
             let imageHtml;
 
             try {
 
-                const imageUrl =
-                    await App.getImageUrl(
-                        question.plant.images?.[0]
+                const image =
+                    await ImageManager.getImage(
+                        question.imagePath
                     );
 
                 imageHtml = `
-                    <img
-                        src="${imageUrl}"
-                        style="
-                            width:120px;
-                            border-radius:8px;
-                        "
-                    >
-                `;
 
-            } catch (error) {
+<img
+    src="${image}"
+    style="
+        width:120px;
+        border-radius:8px;
+    "
+>
+
+`;
+
+            } catch {
 
                 imageHtml =
                     App.getMissingImageHtml(
+
                         question.plant,
-                        question.plant.images?.[0]
+
+                        question.imagePath
+
                     );
+
             }
 
             html += `
 
-                <div
-                    style="
-                        margin-bottom:20px;
-                        padding-bottom:20px;
-                        border-bottom:1px solid #ddd;
-                    "
-                >
+<div
+    style="
+        margin-bottom:20px;
+        padding-bottom:20px;
+        border-bottom:1px solid #ddd;
+    "
+>
 
-                    ${imageHtml}
+    ${imageHtml}
 
-                    <p>
+    <p>
 
-                        ${
-                            question.isCorrect
-                                ? "✅"
-                                : "❌"
-                        }
+        ${
+            question.isCorrect
+                ? "✅"
+                : "❌"
+        }
 
-                        <strong>
+        <strong>
 
-                            ${question.correctAnswers[0]}
+            ${question.correctAnswers[0]}
 
-                        </strong>
+        </strong>
 
-                    </p>
+    </p>
 
-                    ${
-                        question.isCorrect
-                            ? ""
-                            : `
-                                <p>
+    ${
+        question.isCorrect
+            ? ""
+            : `
 
-                                    Te válaszod:
+<p>
 
-                                    ${question.selectedAnswer}
+    Te válaszod:
 
-                                </p>
-                            `
-                    }
+    ${question.selectedAnswer}
 
-                </div>
-            `;
+</p>
+
+`
+
+    }
+
+</div>
+
+`;
+
         }
 
         html += `
 
-            <button
-                id="backToMenuButton"
-            >
-                🏠 Menü
-            </button>
-        `;
+<button
+    id="backToMenuButton"
+>
+
+🏠 Menü
+
+</button>
+
+`;
 
         document
             .getElementById(
@@ -440,11 +560,10 @@ const FreeTextQuiz = {
             .getElementById(
                 "backToMenuButton"
             )
-            .addEventListener(
-                "click",
-                () =>
-                    App.showMainMenu()
-            );
+            .onclick =
+            () =>
+                App.showMainMenu();
+
     },
 
     shuffle(
@@ -452,24 +571,40 @@ const FreeTextQuiz = {
     ) {
 
         for (
-            let i = array.length - 1;
+
+            let i =
+                array.length - 1;
+
             i > 0;
+
             i--
+
         ) {
 
             const j =
                 Math.floor(
+
                     Math.random()
                     * (i + 1)
+
                 );
 
             [
+
                 array[i],
+
                 array[j]
+
             ] = [
+
                 array[j],
+
                 array[i]
+
             ];
+
         }
+
     }
+
 };
