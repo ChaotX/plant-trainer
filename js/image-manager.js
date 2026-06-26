@@ -56,9 +56,9 @@ const ImageManager = {
         if (!file) {
             throw new Error(`Kép nem található: ${imagePath}`);
         }
-        const response = await fetch(
-            API_URL + "?action=image" + "&id=" + encodeURIComponent(file.id)
-        );
+        const response = await fetch(API_URL + "?action=image&id=" + encodeURIComponent(file.id), {
+            cache: "force-cache"
+        });
         console.log("FETCH", imagePath, Math.round(performance.now() - start), "ms");
         const data = await response.json();
         console.log("JSON", imagePath, Math.round(performance.now() - start), "ms");
