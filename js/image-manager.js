@@ -1,253 +1,100 @@
 const ImageManager = {
-
     app: null,
-
     imageCache: {},
-
     pendingRequests: {},
-
     randomCandidate: null,
 
-    initialize(
-        app
-    ) {
-
-        this.app =
-            app;
+    initialize(app) {
+        this.app = app;
     },
 
     clear() {
-
         this.imageCache = {};
-
         this.pendingRequests = {};
-
         this.randomCandidate = null;
     },
 
-    pickRandomImage(
-        plant
-    ) {
-
-        const images =
-            plant.images || [];
-
-        if (
-            images.length === 0
-        ) {
-
+    pickRandomImage(plant) {
+        const images = plant.images || [];
+        if (images.length === 0) {
             return null;
         }
-
-        return images[
-            Math.floor(
-                Math.random()
-                * images.length
-            )
-        ];
+        return images[Math.floor(Math.random() * images.length)];
     },
 
-    async getImage(
-        imagePath
-    ) {
-
+    async getImage(imagePath) {
+        console.log("GET", imagePath);
         if (!imagePath) {
-
-            throw new Error(
-                "Nincs imagePath"
-            );
+            throw new Error("Nincs imagePath");
         }
-
-        if (
-            this.imageCache[
-                imagePath
-            ]
-        ) {
-
-            return this.imageCache[
-                imagePath
-            ];
+        if (this.imageCache[imagePath]) {
+            return this.imageCache[imagePath];
         }
-
-        if (
-            this.pendingRequests[
-                imagePath
-            ]
-        ) {
-
-            return await this.pendingRequests[
-                imagePath
-            ];
+        if (this.pendingRequests[imagePath]) {
+            return await this.pendingRequests[imagePath];
         }
-
-        const promise =
-            this.downloadImage(
-                imagePath
-            );
-
-        this.pendingRequests[
-            imagePath
-        ] =
-            promise;
-
+        const promise = this.downloadImage(imagePath);
+        this.pendingRequests[imagePath] = promise;
         try {
-
-            const image =
-                await promise;
-
-            this.imageCache[
-                imagePath
-            ] =
-                image;
-
+            const image = await promise;
+            this.imageCache[imagePath] = image;
             return image;
-
         } finally {
-
-            delete this.pendingRequests[
-                imagePath
-            ];
+            delete this.pendingRequests[imagePath];
         }
     },
 
-    async downloadImage(
-        imagePath
-    ) {
-
-        const file =
-            this.app.imageIndex[
-                imagePath
-            ];
-
+    async downloadImage(imagePath) {
+        const file = this.app.imageIndex[imagePath];
         if (!file) {
-
-            throw new Error(
-                `Kép nem található: ${imagePath}`
-            );
+            throw new Error(`Kép nem található: ${imagePath}`);
         }
-
-        const response =
-            await fetch(
-
-                API_URL
-                + "?action=image"
-                + "&id="
-                + encodeURIComponent(
-                    file.id
-                )
-
-            );
-
-        const data =
-            await response.json();
-
-        const imageData =
-
-            `data:${data.mimeType};base64,${data.data}`;
-
-        const img =
-            new Image();
-
-        img.src =
-            imageData;
-
+        const response = await fetch(
+            API_URL + "?action=image" + "&id=" + encodeURIComponent(file.id)
+        );
+        const data = await response.json();
+        const imageData = `data:${data.mimeType};base64,${data.data}`;
+        const img = new Image();
+        img.src = imageData;
         return imageData;
     },
 
-    async preload(
-        imagePath
-    ) {
-
+    async preload(imagePath) {
         if (!imagePath) {
-
             return;
         }
-
         try {
-
-            await this.getImage(
-                imagePath
-            );
-
+            await this.getImage(imagePath);
         } catch (error) {
-
-            console.error(
-                error
-            );
+            console.error(error);
         }
     },
 
-    async preloadPlant(
-        plant
-    ) {
-
+    async preloadPlant(plant) {
         if (!plant) {
-
             return;
         }
-
-        const imagePath =
-            this.pickRandomImage(
-                plant
-            );
-
-        await this.preload(
-            imagePath
-        );
+        const imagePath = this.pickRandomImage(plant);
+        await this.preload(imagePath);
     },
 
-    async prepareRandom(
-        plants
-    ) {
-
-        if (
-            this.randomCandidate
-        ) {
-
+    async prepareRandom(plants) {
+        if (this.randomCandidate) {
             return;
         }
-
-        const plantIndex =
-
-            Math.floor(
-
-                Math.random()
-                * plants.length
-
-            );
-
-        const plant =
-            plants[
-                plantIndex
-            ];
-
-        const imagePath =
-            this.pickRandomImage(
-                plant
-            );
-
-        await this.preload(
-            imagePath
-        );
-
+        const plantIndex = Math.floor(Math.random() * plants.length);
+        const plant = plants[plantIndex];
+        const imagePath = this.pickRandomImage(plant);
+        await this.preload(imagePath);
         this.randomCandidate = {
-
             plantIndex,
-
             imagePath
-
         };
     },
 
     consumeRandom() {
-
-        const result =
-            this.randomCandidate;
-
-        this.randomCandidate =
-            null;
-
+        const result = this.randomCandidate;
+        this.randomCandidate = null;
         return result;
     }
-
 };
