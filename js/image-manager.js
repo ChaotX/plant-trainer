@@ -28,15 +28,19 @@ const ImageManager = {
             throw new Error("Nincs imagePath");
         }
         if (this.imageCache[imagePath]) {
+            console.log("CACHE HIT", imagePath);
             return this.imageCache[imagePath];
         }
         if (this.pendingRequests[imagePath]) {
+            console.log("PENDING", imagePath);
             return await this.pendingRequests[imagePath];
         }
+        console.log("DOWNLOAD", imagePath);
         const promise = this.downloadImage(imagePath);
         this.pendingRequests[imagePath] = promise;
         try {
             const image = await promise;
+            console.log("DOWNLOADED", imagePath);
             this.imageCache[imagePath] = image;
             return image;
         } finally {
@@ -60,6 +64,7 @@ const ImageManager = {
     },
 
     async preload(imagePath) {
+        console.log("PRELOAD", imagePath);
         if (!imagePath) {
             return;
         }
@@ -86,6 +91,7 @@ const ImageManager = {
         const plant = plants[plantIndex];
         const imagePath = this.pickRandomImage(plant);
         await this.preload(imagePath);
+        console.log("RANDOM READY", imagePath);
         this.randomCandidate = {
             plantIndex,
             imagePath
