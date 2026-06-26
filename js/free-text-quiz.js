@@ -14,7 +14,7 @@ const FreeTextQuiz = {
 
     buildQuestions() {
         const questionCount = App.settings.quiz?.free_text?.question_count || 10;
-        const plants = [...App.plants];
+        const plants = [...App.getQuizPlants()];
         this.shuffle(plants);
         return plants.slice(0, questionCount).map((plant) => ({
             plant,

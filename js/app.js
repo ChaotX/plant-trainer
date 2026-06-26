@@ -2,6 +2,28 @@ const API_URL =
     "https://script.google.com/macros/s/AKfycbxBfssV4rJFYwVjUqNe2oq87ZBto61u-7zf0V1LYZoyR-ISrjUXRCWMzkOuK_hqEBaW/exec";
 
 const App = {
+    defaultSettings: {
+        title: "Növényfelismerő",
+
+        difficulty: 1,
+
+        study: {
+            shuffle: true
+        },
+
+        quiz: {
+            multiple_choice: {
+                question_count: 10,
+                choice_count: 4,
+                language: "la"
+            },
+
+            free_text: {
+                question_count: 10,
+                required_languages: ["la"]
+            }
+        }
+    },
     imageIndex: {},
     apiKey: null,
     sources: {},
@@ -36,6 +58,7 @@ const App = {
         document
             .getElementById("freeTextButton")
             .addEventListener("click", () => FreeTextQuiz.start());
+        document.getElementById("settingsButton").addEventListener("click", () => Settings.start());
     },
 
     async loadIndex() {
@@ -91,13 +114,31 @@ const App = {
         const settingsYaml = await this.fetchTextFile("settings.yaml");
         const plantsData = jsyaml.load(plantsYaml);
         const settingsData = jsyaml.load(settingsYaml);
-        this.settings = settingsData || {};
+        this.settings = this.mergeSettings(
+            structuredClone(this.defaultSettings),
+            settingsData || {}
+        );
         if (Array.isArray(plantsData)) {
             this.plants = plantsData;
         } else {
             this.plants = plantsData.plants || [];
         }
         console.log("Plants loaded:", this.plants.length);
+    },
+
+    mergeSettings(target, source) {
+        if (!source) {
+            return target;
+        }
+        for (const key of Object.keys(source)) {
+            const value = source[key];
+            if (value && typeof value === "object" && !Array.isArray(value)) {
+                target[key] = this.mergeSettings(target[key] || {}, value);
+            } else {
+                target[key] = value;
+            }
+        }
+        return target;
     },
 
     async fetchTextFile(relativePath) {
@@ -140,6 +181,14 @@ const App = {
     showContent() {
         document.getElementById("mainMenu").classList.add("hidden");
         document.getElementById("content").classList.remove("hidden");
+    },
+
+    isPlantEnabledForQuiz(plant) {
+        return plant.level == null || plant.level === this.settings.difficulty;
+    },
+
+    getQuizPlants() {
+        return this.plants.filter((plant) => this.isPlantEnabledForQuiz(plant));
     },
 
     getMissingImageHtml(plant, imagePath) {

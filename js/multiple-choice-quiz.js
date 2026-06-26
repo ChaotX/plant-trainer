@@ -14,7 +14,7 @@ const MultipleChoiceQuiz = {
     buildQuestions() {
         const questionCount = App.settings.quiz?.multiple_choice?.question_count || 10;
         const choiceCount = App.settings.quiz?.multiple_choice?.choice_count || 4;
-        const plants = [...App.plants];
+        const plants = [...App.getQuizPlants()];
         this.shuffle(plants);
         return plants.slice(0, questionCount).map((plant) => {
             const correctAnswer = plant.names?.la?.[0] || "Ismeretlen";
