@@ -3,6 +3,8 @@ const LearnMode = {
     currentIndex: 0,
     showNames: false,
     renderToken: 0,
+    nextEntry: null,
+    randomEntry: null,
 
     async start() {
         this.showNames = false;
@@ -12,13 +14,10 @@ const LearnMode = {
         }
         HistoryManager.clear();
         this.currentIndex = 0;
-        const firstPlant = this.plants[this.currentIndex];
-        HistoryManager.push({
-            plantIndex: this.currentIndex,
-            imagePath: ImageManager.pickRandomImage(firstPlant)
-        });
+        HistoryManager.push(this.createEntry(this.currentIndex));
         App.showContent();
         await this.render();
+        this.prepareNext();
     },
 
     getCurrentEntry() {
@@ -75,9 +74,10 @@ const LearnMode = {
 </div>
 `;
         this.registerEvents();
-        this.preloadNext();
-        this.preloadRandom();
-
+        if (!HistoryManager.canGoNext()) {
+            this.prepareNext();
+        }
+        this.prepareRandom();
         requestAnimationFrame(() => {
             ImageManager.getImage(entry.imagePath)
                 .then((imageData) => {
@@ -121,27 +121,28 @@ const LearnMode = {
             if (HistoryManager.canGoNext()) {
                 const entry = HistoryManager.next();
                 this.currentIndex = entry.plantIndex;
+                this.nextEntry = null;
                 this.showNames = false;
                 await this.render();
                 return;
             }
-            this.currentIndex++;
-            if (this.currentIndex >= this.plants.length) {
-                this.currentIndex = 0;
+            if (!this.nextEntry) {
+                this.prepareNext();
             }
-            const plant = this.plants[this.currentIndex];
-            HistoryManager.push({
-                plantIndex: this.currentIndex,
-                imagePath: ImageManager.pickRandomImage(plant)
-            });
+            HistoryManager.push(this.nextEntry);
+            this.currentIndex = this.nextEntry.plantIndex;
+            this.nextEntry = null;
             this.showNames = false;
             await this.render();
         };
+
         document.getElementById("randomPlantButton").onclick = async () => {
-            await ImageManager.prepareRandom(this.plants);
-            const entry = ImageManager.consumeRandom();
-            this.currentIndex = entry.plantIndex;
-            HistoryManager.push(entry);
+            if (!this.randomEntry) {
+                this.prepareRandom();
+            }
+            HistoryManager.push(this.randomEntry);
+            this.currentIndex = this.randomEntry.plantIndex;
+            this.randomEntry = null;
             this.showNames = false;
             await this.render();
         };
@@ -151,22 +152,38 @@ const LearnMode = {
         };
     },
 
-    preloadNext() {
+    createEntry(plantIndex) {
+        const plant = this.plants[plantIndex];
+        return {
+            plantIndex,
+            imagePath: ImageManager.pickRandomImage(plant)
+        };
+    },
+
+    prepareNext() {
+        if (this.nextEntry) {
+            return;
+        }
         if (HistoryManager.canGoNext()) {
-            const entry = HistoryManager.history[HistoryManager.position + 1];
-            ImageManager.preload(entry.imagePath);
+            this.nextEntry = HistoryManager.history[HistoryManager.position + 1];
+            ImageManager.preload(this.nextEntry.imagePath);
             return;
         }
         let nextIndex = this.currentIndex + 1;
         if (nextIndex >= this.plants.length) {
             nextIndex = 0;
         }
-        const plant = this.plants[nextIndex];
-        ImageManager.preload(ImageManager.pickRandomImage(plant));
+        this.nextEntry = this.createEntry(nextIndex);
+        ImageManager.preload(this.nextEntry.imagePath);
     },
 
-    preloadRandom() {
-        // ImageManager.prepareRandom(this.plants);
+    prepareRandom() {
+        if (this.randomEntry) {
+            return;
+        }
+        const plantIndex = Math.floor(Math.random() * this.plants.length);
+        this.randomEntry = this.createEntry(plantIndex);
+        ImageManager.preload(this.randomEntry.imagePath);
     },
 
     shuffle(array) {
