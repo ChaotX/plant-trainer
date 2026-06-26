@@ -23,16 +23,17 @@ const ImageManager = {
     },
 
     async getImage(imagePath) {
+        const start = performance.now();
         console.log("GET", imagePath);
         if (!imagePath) {
             throw new Error("Nincs imagePath");
         }
         if (this.imageCache[imagePath]) {
-            console.log("CACHE HIT", imagePath);
+            console.log("CACHE HIT", imagePath, Math.round(performance.now() - start), "ms");
             return this.imageCache[imagePath];
         }
         if (this.pendingRequests[imagePath]) {
-            console.log("PENDING", imagePath);
+            console.log("PENDING", imagePath, Math.round(performance.now() - start), "ms");
             return await this.pendingRequests[imagePath];
         }
         console.log("DOWNLOAD", imagePath);
@@ -40,8 +41,9 @@ const ImageManager = {
         this.pendingRequests[imagePath] = promise;
         try {
             const image = await promise;
-            console.log("DOWNLOADED", imagePath);
+            console.log("DOWNLOADED", imagePath, Math.round(performance.now() - start), "ms");
             this.imageCache[imagePath] = image;
+            console.log("GET DONE", imagePath, Math.round(performance.now() - start), "ms");
             return image;
         } finally {
             delete this.pendingRequests[imagePath];
@@ -49,6 +51,7 @@ const ImageManager = {
     },
 
     async downloadImage(imagePath) {
+        const start = performance.now();
         const file = this.app.imageIndex[imagePath];
         if (!file) {
             throw new Error(`Kép nem található: ${imagePath}`);
@@ -56,8 +59,11 @@ const ImageManager = {
         const response = await fetch(
             API_URL + "?action=image" + "&id=" + encodeURIComponent(file.id)
         );
+        console.log("FETCH", imagePath, Math.round(performance.now() - start), "ms");
         const data = await response.json();
+        console.log("JSON", imagePath, Math.round(performance.now() - start), "ms");
         const imageData = `data:${data.mimeType};base64,${data.data}`;
+        console.log("BASE64", imagePath, Math.round(performance.now() - start), "ms");
         const img = new Image();
         img.src = imageData;
         return imageData;
