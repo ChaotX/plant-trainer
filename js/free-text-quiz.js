@@ -391,7 +391,7 @@ const FreeTextQuiz = {
 
         }
 
-        await ImageManager.preload(
+        ImageManager.preload(
 
             this.questions[
                 next
