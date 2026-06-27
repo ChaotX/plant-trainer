@@ -54,9 +54,8 @@ const FreeTextQuiz = {
             if (token !== this.renderToken) {
                 return;
             }
-            document.getElementById("quizImageContainer").innerHTML = `
-<img src="${image}" class="plant-image">
-`;
+            document.getElementById("quizImageContainer").innerHTML =
+                `<img src="${image}" class="plant-image">`;
         } catch {
             if (token !== this.renderToken) {
                 return;

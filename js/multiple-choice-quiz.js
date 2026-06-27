@@ -2,6 +2,7 @@ const MultipleChoiceQuiz = {
     questions: [],
     currentQuestion: 0,
     score: 0,
+    renderToken: 0,
 
     async start() {
         this.currentQuestion = 0;
@@ -27,6 +28,7 @@ const MultipleChoiceQuiz = {
             this.shuffle(choices);
             return {
                 plant,
+                imagePath: ImageManager.pickRandomImage(plant),
                 correctAnswer,
                 choices,
                 selectedAnswer: null,
@@ -36,39 +38,52 @@ const MultipleChoiceQuiz = {
     },
 
     async render() {
+        const token = ++this.renderToken;
         const question = this.questions[this.currentQuestion];
-        let imageHtml;
-        try {
-            const imageUrl = await App.getImageUrl(question.plant.images?.[0]);
-            imageHtml = `
-                <img src="${imageUrl}" class="plant-image">
-            `;
-        } catch (error) {
-            console.error(error);
-            imageHtml = App.getMissingImageHtml(question.plant, question.plant.images?.[0]);
-        }
         document.getElementById("content").innerHTML = `
-            <div class="quiz-progress">
-                ${this.currentQuestion + 1} / ${this.questions.length}
-            </div>
-            ${imageHtml}
-            <div class="quiz-choices">
-                ${question.choices
-                    .map(
-                        (choice) => `
-                            <button class="quiz-choice" data-answer="${choice}">
-                                ${choice}
-                            </button>
-                        `
-                    )
-                    .join("")}
-            </div>
-            <hr>
-            <button id="backToMenuButton">
-                🏠 Menü
+<div class="quiz-progress">
+    ${this.currentQuestion + 1} / ${this.questions.length}
+</div>
+<div id="quizImageContainer">
+    <div class="plant-image loading">
+        Kép betöltése...
+    </div>
+</div>
+<div class="quiz-choices">
+    ${question.choices
+        .map(
+            (choice) => `
+            <button class="quiz-choice" data-answer="${choice}">
+                ${choice}
             </button>
-        `;
+            `
+        )
+        .join("")}
+</div>
+<hr>
+<button id="backToMenuButton">
+    🏠 Menü
+</button>
+`;
         this.registerEvents(question);
+        this.preloadNext();
+        requestAnimationFrame(() => {
+            ImageManager.getImage(question.imagePath)
+                .then((image) => {
+                    if (token !== this.renderToken) {
+                        return;
+                    }
+                    document.getElementById("quizImageContainer").innerHTML =
+                        `<img src="${image}" class="plant-image">`;
+                })
+                .catch(() => {
+                    if (token !== this.renderToken) {
+                        return;
+                    }
+                    document.getElementById("quizImageContainer").innerHTML =
+                        App.getMissingImageHtml(question.plant, question.imagePath);
+                });
+        });
     },
 
     registerEvents(question) {
@@ -126,6 +141,14 @@ const MultipleChoiceQuiz = {
         document.getElementById("nextQuestionButton").addEventListener("click", async () => {
             await this.nextQuestion();
         });
+    },
+
+    preloadNext() {
+        const next = this.currentQuestion + 1;
+        if (next >= this.questions.length) {
+            return;
+        }
+        ImageManager.preload(this.questions[next].imagePath);
     },
 
     async nextQuestion() {
