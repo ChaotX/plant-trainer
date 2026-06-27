@@ -45,27 +45,30 @@ const FreeTextQuiz = {
 </div>
 <div id="answerResult"></div>
 <hr>
-<button id="backToMenuButton"> 🏠 Menü </button>
+<button id="backToMenuButton">
+    🏠 Menü
+</button>
 `;
         this.registerEvents(question);
         document.getElementById("answerInput").focus();
-        try {
-            const image = await ImageManager.getImage(question.imagePath);
-            if (token !== this.renderToken) {
-                return;
-            }
-            document.getElementById("quizImageContainer").innerHTML =
-                `<img src="${image}" class="plant-image">`;
-        } catch {
-            if (token !== this.renderToken) {
-                return;
-            }
-            document.getElementById("quizImageContainer").innerHTML = App.getMissingImageHtml(
-                question.plant,
-                question.imagePath
-            );
-        }
         this.preloadNext();
+        requestAnimationFrame(() => {
+            ImageManager.getImage(question.imagePath)
+                .then((image) => {
+                    if (token !== this.renderToken) {
+                        return;
+                    }
+                    document.getElementById("quizImageContainer").innerHTML =
+                        `<img src="${image}" class="plant-image">`;
+                })
+                .catch(() => {
+                    if (token !== this.renderToken) {
+                        return;
+                    }
+                    document.getElementById("quizImageContainer").innerHTML =
+                        App.getMissingImageHtml(question.plant, question.imagePath);
+                });
+        });
     },
 
     registerEvents(question) {
