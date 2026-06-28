@@ -98,10 +98,15 @@ const App = {
             this.currentFolderId = this.extractFolderId(folderUrl);
             ImageManager.clear();
             document.getElementById("loadStatus").innerText = "Betöltés...";
+            console.log("1");
             await this.loadIndex();
+            console.log("2");
             await this.loadData();
+            console.log("3");
             document.getElementById("appTitle").innerText = this.settings.title || sourceName;
+            console.log("4");
             const errors = this.validateImages();
+            console.log("5", errors.length);
             if (errors.length > 0) {
                 this.showImageValidationErrors(errors);
                 return;
@@ -129,7 +134,6 @@ const App = {
             this.plants = plantsData.plants || [];
         }
         console.log("Plants loaded:", this.plants.length);
-        this.validateImages();
     },
 
     mergeSettings(target, source) {
