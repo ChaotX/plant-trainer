@@ -99,15 +99,10 @@ const App = {
             this.currentFolderId = this.extractFolderId(folderUrl);
             ImageManager.clear();
             document.getElementById("loadStatus").innerText = "Betöltés...";
-            console.log("1");
             await this.loadIndex();
-            console.log("2");
             await this.loadData();
-            console.log("3");
             document.getElementById("appTitle").innerText = this.settings.title || sourceName;
-            console.log("4");
             const errors = this.validateImages();
-            console.log("5", errors.length);
             if (errors.length > 0) {
                 console.log("SHOW ERRORS");
                 this.showImageValidationErrors(errors);
