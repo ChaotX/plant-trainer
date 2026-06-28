@@ -18,10 +18,7 @@ const HistoryManager = {
         if (this.position < this.history.length - 1) {
             this.history = this.history.slice(0, this.position + 1);
         }
-        this.history.push({
-            plantIndex: entry.plantIndex,
-            imagePath: entry.imagePath
-        });
+        this.history.push({ ...entry });
         this.position = this.history.length - 1;
     },
 
