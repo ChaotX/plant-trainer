@@ -76,19 +76,30 @@ const LearnMode = {
             this.prepareNext();
         }
         requestAnimationFrame(() => {
+            console.log("RENDER START", plant.names.la[0], entry.imagePath, token);
             ImageManager.getImage(entry.imagePath)
                 .then((imageData) => {
+                    console.log(
+                        "IMAGE READY",
+                        plant.names.la[0],
+                        entry.imagePath,
+                        token,
+                        this.renderToken
+                    );
                     if (token !== this.renderToken) {
                         return;
                     }
+                    console.log("SHOW IMAGE", plant.names.la[0], entry.imagePath);
                     document.getElementById("plantImageContainer").innerHTML = `
         <img src="${imageData}" class="plant-image">
         `;
                 })
                 .catch(() => {
+                    console.log("SHOW MISSING", plant.names.la[0], entry.imagePath);
                     if (token !== this.renderToken) {
                         return;
                     }
+
                     document.getElementById("plantImageContainer").innerHTML =
                         App.getMissingImageHtml(plant, entry.imagePath);
                 });
@@ -129,6 +140,7 @@ const LearnMode = {
             if (!this.nextEntry) {
                 this.prepareNext();
             }
+            console.log("PUSH NEXT", this.nextEntry.plant.names.la[0], this.nextEntry.imagePath);
             HistoryManager.push(this.nextEntry);
             this.currentIndex = this.plants.indexOf(this.nextEntry.plant);
             this.nextEntry = null;
@@ -149,11 +161,13 @@ const LearnMode = {
     },
 
     prepareNext() {
+        console.log("PREPARE NEXT", this.currentIndex, this.plants[this.currentIndex].names.la[0]);
         if (this.nextEntry) {
             return;
         }
         if (HistoryManager.canGoNext()) {
             this.nextEntry = HistoryManager.history[HistoryManager.position + 1];
+            console.log("NEXT ENTRY", this.nextEntry.plant.names.la[0], this.nextEntry.imagePath);
             ImageManager.preload(this.nextEntry.imagePath);
             return;
         }
@@ -162,6 +176,7 @@ const LearnMode = {
             nextIndex = 0;
         }
         this.nextEntry = this.createEntry(this.plants[nextIndex]);
+        console.log("NEXT ENTRY", this.nextEntry.plant.names.la[0], this.nextEntry.imagePath);
         ImageManager.preload(this.nextEntry.imagePath);
     },
 
