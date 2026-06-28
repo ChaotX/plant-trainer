@@ -122,7 +122,7 @@ const FreeTextQuiz = {
         };
     },
 
-    async preloadNext() {
+    preloadNext() {
         const next = this.currentQuestion + 1;
         if (next >= this.questions.length) {
             return;

@@ -19,7 +19,7 @@ const MultipleChoiceQuiz = {
         this.shuffle(plants);
         return plants.slice(0, questionCount).map((plant) => {
             const correctAnswer = plant.names?.la?.[0] || "Ismeretlen";
-            const wrongAnswers = App.plants
+            const wrongAnswers = App.getQuizPlants()
                 .filter((p) => p !== plant)
                 .map((p) => p.names?.la?.[0])
                 .filter(Boolean);
@@ -174,7 +174,7 @@ const MultipleChoiceQuiz = {
         for (const question of this.questions) {
             let imageHtml;
             try {
-                const imageUrl = await App.getImageUrl(question.plant.images?.[0]);
+                const imageUrl = await App.getImageUrl(question.imagePath);
                 imageHtml = `
                     <img src="${imageUrl}" style=" width:120px; border-radius:8px;">
                 `;
