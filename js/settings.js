@@ -18,9 +18,6 @@ const Settings = {
     </div>
     <hr>
     <hr>
-    <button id="backToMenuButton">
-        🏠 Menü
-    </button>
 </div>
 `;
         document.querySelectorAll("input[name=difficulty]").forEach((radio) => {
@@ -28,8 +25,5 @@ const Settings = {
                 App.settings.difficulty = Number(radio.value);
             };
         });
-        document.getElementById("backToMenuButton").onclick = () => {
-            App.showMainMenu();
-        };
     }
 };

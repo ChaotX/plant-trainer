@@ -45,9 +45,6 @@ const FreeTextQuiz = {
 </div>
 <div id="answerResult"></div>
 <hr>
-<button id="backToMenuButton">
-    🏠 Menü
-</button>
 `;
         this.registerEvents(question);
         document.getElementById("answerInput").focus();
@@ -94,7 +91,6 @@ const FreeTextQuiz = {
                 submit();
             }
         };
-        document.getElementById("backToMenuButton").onclick = () => App.showMainMenu();
     },
     showAnswer(question) {
         const buttonText =
@@ -181,11 +177,7 @@ const FreeTextQuiz = {
 </div>
 `;
         }
-        html += `
-<button id="backToMenuButton"> 🏠 Menü </button>
-`;
         document.getElementById("content").innerHTML = html;
-        document.getElementById("backToMenuButton").onclick = () => App.showMainMenu();
     },
 
     shuffle(array) {
