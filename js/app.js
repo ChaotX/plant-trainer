@@ -184,7 +184,15 @@ const App = {
     },
 
     isPlantEnabledForQuiz(plant) {
-        return plant.level == null || plant.level === this.settings.difficulty;
+        if (plant.level == null) {
+            return true;
+        }
+
+        if (Array.isArray(plant.level)) {
+            return plant.level.includes(this.settings.difficulty);
+        }
+
+        return plant.level === this.settings.difficulty;
     },
 
     getQuizPlants() {
