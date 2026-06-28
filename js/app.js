@@ -108,7 +108,9 @@ const App = {
             const errors = this.validateImages();
             console.log("5", errors.length);
             if (errors.length > 0) {
+                console.log("SHOW ERRORS");
                 this.showImageValidationErrors(errors);
+                console.log("SHOW ERRORS DONE");
                 return;
             }
             this.showMainMenu();
@@ -121,6 +123,13 @@ const App = {
 
     async loadData() {
         const plantsYaml = await this.fetchTextFile("plants.yaml");
+        this.plantLineNumbers = [];
+        const lines = plantsYaml.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith("- names:")) {
+                this.plantLineNumbers.push(i + 1);
+            }
+        }
         const settingsYaml = await this.fetchTextFile("settings.yaml");
         const plantsData = jsyaml.load(plantsYaml);
         const settingsData = jsyaml.load(settingsYaml);
@@ -213,7 +222,7 @@ const App = {
 
     validateImages() {
         const missing = [];
-        this.plants.forEach((plant) => {
+        this.plants.forEach((plant, index) => {
             const images = plant.images || [];
             const missingImages = images.filter((imagePath) => !this.imageIndex[imagePath]);
             if (missingImages.length === 0) {
@@ -221,6 +230,7 @@ const App = {
             }
             missing.push({
                 plant,
+                line: this.plantLineNumbers[index],
                 images: missingImages
             });
         });
@@ -228,46 +238,58 @@ const App = {
     },
 
     showImageValidationErrors(errors) {
+        console.log("ENTER showImageValidationErrors");
         const selector = document.getElementById("sourceSelector");
         const sourceName = selector.options[selector.selectedIndex].text;
         let html = `
-<h2>⚠ Hiányzó képek</h2>
+<h2>⚠ Hiányzó vagy hibás képútvonalak</h2>
 <p>
 A(z)
 <strong>${sourceName}</strong>
-adatforrás betöltése során
-olyan képek kerültek a
-plants.yaml fájlban
-hivatkozásra,
-amelyek nem találhatók
-meg a Google Drive mappában.
+adatforrás betöltése során a
+<b>plants.yaml</b> fájlban
+<strong>${errors.length}</strong>
+hibás képútvonal található.
+</p>
+<p>
+Javasolt a plants.yaml javítása, de az alkalmazás
+a hibák ellenére is használható.
 </p>
 <button id="continueWithErrorsButton">
     ⚠ Folytatás a hibák ellenére
 </button>
 <hr>
 `;
-        errors.forEach((entry) => {
+        errors.forEach((entry, index) => {
             const latinName = entry.plant.names?.la?.[0] || "(ismeretlen)";
+            const hungarianName = entry.plant.names?.hu?.[0] || "";
             html += `
 <div class="image-error">
-    <strong>
-        ${latinName}
-    </strong>
+    <strong>#${index + 1} &nbsp; ${latinName}</strong>
+`;
+            if (hungarianName) {
+                html += `
+    <br>
+    <em>${hungarianName}</em>
+`;
+            }
+            html += `
     <ul>
 `;
-            entry.images.forEach((image) => {
-                html += `
-        <li>
-            ${image}
-        </li>
-`;
+            entry.images.forEach((imagePath) => {
+                html += `<li>${imagePath}</li>`;
             });
             html += `
     </ul>
 </div>
 `;
         });
+        console.log("SETTING HTML");
+        document.getElementById("loadStatus").innerHTML = html;
+        document.getElementById("continueWithErrorsButton").onclick = () => {
+            document.getElementById("loadStatus").innerHTML = "";
+            this.showMainMenu();
+        };
     },
 
     getMissingImageHtml(plant, imagePath) {
