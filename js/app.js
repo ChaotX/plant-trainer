@@ -188,11 +188,13 @@ const App = {
             return true;
         }
 
+        const difficulty = Number(this.settings.difficulty);
+
         if (Array.isArray(plant.level)) {
-            return plant.level.includes(this.settings.difficulty);
+            return plant.level.some((level) => Number(level) === difficulty);
         }
 
-        return plant.level === this.settings.difficulty;
+        return Number(plant.level) === difficulty;
     },
 
     getQuizPlants() {
