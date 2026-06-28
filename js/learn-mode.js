@@ -32,6 +32,12 @@ const LearnMode = {
         const token = ++this.renderToken;
         const entry = this.getCurrentEntry();
         const plant = this.plants[entry.plantIndex];
+        console.log({
+            currentIndex: this.currentIndex,
+            entryPlantIndex: entry.plantIndex,
+            imagePath: entry.imagePath,
+            plantImages: plant.images
+        });
         const latinName = plant.names?.la?.[0] || "Ismeretlen";
         const hungarianName = plant.names?.hu?.[0] || "";
         const namesHiddenClass = this.showNames ? "" : "hidden";
