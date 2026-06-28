@@ -111,6 +111,14 @@ const MultipleChoiceQuiz = {
                         }
                     });
                 }
+                document.querySelectorAll(".quiz-choice").forEach((btn) => {
+                    if (
+                        !btn.classList.contains("quiz-correct") &&
+                        !btn.classList.contains("quiz-wrong")
+                    ) {
+                        btn.classList.add("quiz-neutral");
+                    }
+                });
                 this.showAnswer(question);
             });
         });
