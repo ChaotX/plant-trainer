@@ -24,10 +24,6 @@ const LearnMode = {
         return HistoryManager.current();
     },
 
-    getCurrentPlant() {
-        return this.plants[this.getCurrentEntry().plantIndex];
-    },
-
     async render() {
         const token = ++this.renderToken;
         const entry = this.getCurrentEntry();
