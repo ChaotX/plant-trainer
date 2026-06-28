@@ -41,8 +41,8 @@ const LearnMode = {
             : "";
         const tags = plant.tags?.length
             ? `
-<div class="plant-tags center">
-    ${plant.tags.join(" • ")}
+<div class="plant-tags">
+    (${plant.tags.join(" • ")})
 </div>
 `
             : "";
@@ -58,13 +58,14 @@ const LearnMode = {
         </button>
     </div>
     <div id="plantNames"
-         class="plant-names ${namesHiddenClass}">
+        class="plant-names ${namesHiddenClass}">
         <div class="plant-latin">
             ${latinName}
         </div>
         <div class="plant-hungarian">
             ${hungarianName}
         </div>
+        ${tags}
     </div>
     <div id="plantImageContainer">
         <div class="plant-image loading">
