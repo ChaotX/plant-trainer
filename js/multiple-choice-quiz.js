@@ -49,16 +49,21 @@ const MultipleChoiceQuiz = {
         Kép betöltése...
     </div>
 </div>
-<div class="quiz-choices">
-    ${question.choices
-        .map(
-            (choice) => `
-            <button class="quiz-choice" data-answer="${choice}">
-                ${choice}
-            </button>
-            `
-        )
-        .join("")}
+<div class="quiz-layout">
+    <div class="quiz-choices">
+        ${question.choices
+            .map(
+                (choice) => `
+<button class="quiz-choice" data-answer="${choice}">
+    ${choice}
+</button>
+`
+            )
+            .join("")}
+    </div>
+    <button id="nextQuestionButton" class="quiz-next" disabled>
+        ➡️
+    </button>
 </div>
 <hr>
 `;
@@ -91,6 +96,7 @@ const MultipleChoiceQuiz = {
                     return;
                 }
                 answered = true;
+                document.querySelectorAll(".quiz-choice").forEach((btn) => (btn.disabled = true));
                 const answer = button.dataset.answer;
                 const isCorrect = answer === question.correctAnswer;
                 question.selectedAnswer = answer;
@@ -111,30 +117,15 @@ const MultipleChoiceQuiz = {
         });
     },
 
-    showAnswer(question) {
-        const result = document.createElement("div");
+    showAnswer() {
+        const button = document.getElementById("nextQuestionButton");
+        button.disabled = false;
         if (this.currentQuestion + 1 >= this.questions.length) {
-            buttonText = "📊 Eredmény";
-        } else {
-            buttonText = "➡️ Következő kérdés";
+            button.innerHTML = "📊";
         }
-        result.className = "quiz-result";
-        result.innerHTML = `
-            <p>
-                Helyes válasz:
-                <strong>
-                    ${question.correctAnswer}
-                </strong>
-            </p>
-            <button id="nextQuestionButton">
-                ${buttonText}
-            </button>
-        `;
-
-        document.getElementById("content").appendChild(result);
-        document.getElementById("nextQuestionButton").addEventListener("click", async () => {
+        button.onclick = async () => {
             await this.nextQuestion();
-        });
+        };
     },
 
     preloadNext() {
