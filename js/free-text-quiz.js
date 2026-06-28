@@ -39,11 +39,18 @@ const FreeTextQuiz = {
 </div>
 <div class="free-text-answer">
     <input id="answerInput" type="text" autocomplete="off" placeholder="Latin név...">
+</div>
+<div id="answerResult" class="quiz-feedback">
+    &nbsp;
+</div>
+<div class="quiz-actions">
     <button id="submitAnswerButton">
         Ellenőrzés
     </button>
+    <button id="nextQuestionButton" class="quiz-next" disabled>
+        ➡️
+    </button>
 </div>
-<div id="answerResult"></div>
 <hr>
 `;
         this.registerEvents(question);
@@ -92,28 +99,28 @@ const FreeTextQuiz = {
             }
         };
     },
+
     showAnswer(question) {
-        const buttonText =
-            this.currentQuestion + 1 >= this.questions.length
-                ? "📊 Eredmény"
-                : "➡️ Következő kérdés";
+        const input = document.getElementById("answerInput");
+        const submit = document.getElementById("submitAnswerButton");
+        const next = document.getElementById("nextQuestionButton");
+        input.disabled = true;
+        submit.disabled = true;
+        if (question.isCorrect) {
+            input.classList.add("quiz-correct");
+        } else {
+            input.classList.add("quiz-wrong");
+        }
         document.getElementById("answerResult").innerHTML = `
-<p>
-    ${question.isCorrect ? "✅ Helyes" : "❌ Hibás"}
-</p>
-<p>
-    Helyes válasz:
-    <strong>
-        ${question.correctAnswers.join(", ")}
-    </strong>
-</p>
-<button id="nextQuestionButton">
-    ${buttonText}
-</button>
+✔ <strong>
+${question.correctAnswers.join(", ")}
+</strong>
 `;
-        document.getElementById("answerInput").disabled = true;
-        document.getElementById("submitAnswerButton").disabled = true;
-        document.getElementById("nextQuestionButton").onclick = async () => {
+        next.disabled = false;
+        if (this.currentQuestion + 1 >= this.questions.length) {
+            next.innerHTML = "📊";
+        }
+        next.onclick = async () => {
             await this.nextQuestion();
         };
     },

@@ -96,7 +96,6 @@ const MultipleChoiceQuiz = {
                     return;
                 }
                 answered = true;
-                document.querySelectorAll(".quiz-choice").forEach((btn) => (btn.disabled = true));
                 const answer = button.dataset.answer;
                 const isCorrect = answer === question.correctAnswer;
                 question.selectedAnswer = answer;
