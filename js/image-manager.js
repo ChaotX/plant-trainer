@@ -87,26 +87,5 @@ const ImageManager = {
         }
         const imagePath = this.pickRandomImage(plant);
         await this.preload(imagePath);
-    },
-
-    async prepareRandom(plants) {
-        if (this.randomCandidate) {
-            return;
-        }
-        const plantIndex = Math.floor(Math.random() * plants.length);
-        const plant = plants[plantIndex];
-        const imagePath = this.pickRandomImage(plant);
-        await this.preload(imagePath);
-        console.log("RANDOM READY", imagePath);
-        this.randomCandidate = {
-            plantIndex,
-            imagePath
-        };
-    },
-
-    consumeRandom() {
-        const result = this.randomCandidate;
-        this.randomCandidate = null;
-        return result;
     }
 };

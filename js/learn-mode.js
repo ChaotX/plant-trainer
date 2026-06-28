@@ -8,13 +8,13 @@ const LearnMode = {
 
     async start() {
         this.showNames = false;
-        this.plants = [...App.plants];
+        this.plants = [...App.getQuizPlants()];
         if (App.settings.study?.shuffle) {
             this.shuffle(this.plants);
         }
         HistoryManager.clear();
         this.currentIndex = 0;
-        HistoryManager.push(this.createEntry(this.currentIndex));
+        HistoryManager.push(this.createEntry(this.plants[this.currentIndex]));
         App.showContent();
         await this.render();
         this.prepareNext();
@@ -31,17 +31,18 @@ const LearnMode = {
     async render() {
         const token = ++this.renderToken;
         const entry = this.getCurrentEntry();
-        const plant = this.plants[entry.plantIndex];
-        console.log({
-            currentIndex: this.currentIndex,
-            entryPlantIndex: entry.plantIndex,
-            imagePath: entry.imagePath,
-            plantImages: plant.images
-        });
+        const plant = entry.plant;
         const latinName = plant.names?.la?.[0] || "Ismeretlen";
         const hungarianName = plant.names?.hu?.[0] || "";
         const namesHiddenClass = this.showNames ? "" : "hidden";
         const toggleButtonText = this.showNames ? "🙈 Név elrejtése" : "👁️ Név mutatása";
+        const previousButton = HistoryManager.canGoPrevious()
+            ? `
+<button id="previousPlantButton">
+    ⬅️ Előző
+</button>
+`
+            : "";
         document.getElementById("content").innerHTML = `
 <div class="plant-card">
     <div class="center">
@@ -63,12 +64,7 @@ const LearnMode = {
         </div>
     </div>
     <div class="navigation-buttons">
-        <button id="previousPlantButton">
-            ⬅️ Előző
-        </button>
-        <button id="randomPlantButton">
-            🎲 Véletlen
-        </button>
+        ${previousButton}
         <button id="nextPlantButton">
             Következő ➡️
         </button>
@@ -83,7 +79,6 @@ const LearnMode = {
         if (!HistoryManager.canGoNext()) {
             this.prepareNext();
         }
-        this.prepareRandom();
         requestAnimationFrame(() => {
             ImageManager.getImage(entry.imagePath)
                 .then((imageData) => {
@@ -113,20 +108,23 @@ const LearnMode = {
                 : "👁️ Név mutatása";
         };
 
-        document.getElementById("previousPlantButton").onclick = async () => {
-            const entry = HistoryManager.previous();
-            if (!entry) {
-                return;
-            }
-            this.currentIndex = entry.plantIndex;
-            this.showNames = false;
-            await this.render();
-        };
+        const previousButton = document.getElementById("previousPlantButton");
+        if (previousButton) {
+            previousButton.onclick = async () => {
+                const entry = HistoryManager.previous();
+                if (!entry) {
+                    return;
+                }
+                this.currentIndex = this.plants.indexOf(entry.plant);
+                this.showNames = false;
+                await this.render();
+            };
+        }
 
         document.getElementById("nextPlantButton").onclick = async () => {
             if (HistoryManager.canGoNext()) {
                 const entry = HistoryManager.next();
-                this.currentIndex = entry.plantIndex;
+                this.currentIndex = this.plants.indexOf(entry.plant);
                 this.nextEntry = null;
                 this.showNames = false;
                 await this.render();
@@ -136,19 +134,8 @@ const LearnMode = {
                 this.prepareNext();
             }
             HistoryManager.push(this.nextEntry);
-            this.currentIndex = this.nextEntry.plantIndex;
+            this.currentIndex = this.plants.indexOf(this.nextEntry.plant);
             this.nextEntry = null;
-            this.showNames = false;
-            await this.render();
-        };
-
-        document.getElementById("randomPlantButton").onclick = async () => {
-            if (!this.randomEntry) {
-                this.prepareRandom();
-            }
-            HistoryManager.push(this.randomEntry);
-            this.currentIndex = this.randomEntry.plantIndex;
-            this.randomEntry = null;
             this.showNames = false;
             await this.render();
         };
@@ -158,10 +145,9 @@ const LearnMode = {
         };
     },
 
-    createEntry(plantIndex) {
-        const plant = this.plants[plantIndex];
+    createEntry(plant) {
         return {
-            plantIndex,
+            plant,
             imagePath: ImageManager.pickRandomImage(plant)
         };
     },
@@ -179,17 +165,8 @@ const LearnMode = {
         if (nextIndex >= this.plants.length) {
             nextIndex = 0;
         }
-        this.nextEntry = this.createEntry(nextIndex);
+        this.nextEntry = this.createEntry(this.plants[nextIndex]);
         ImageManager.preload(this.nextEntry.imagePath);
-    },
-
-    prepareRandom() {
-        if (this.randomEntry) {
-            return;
-        }
-        const plantIndex = Math.floor(Math.random() * this.plants.length);
-        this.randomEntry = this.createEntry(plantIndex);
-        ImageManager.preload(this.randomEntry.imagePath);
     },
 
     shuffle(array) {
