@@ -59,6 +59,7 @@ const App = {
             .getElementById("freeTextButton")
             .addEventListener("click", () => FreeTextQuiz.start());
         document.getElementById("settingsButton").addEventListener("click", () => Settings.start());
+        document.getElementById("menuButton").addEventListener("click", () => this.showMainMenu());
     },
 
     async loadIndex() {
@@ -189,17 +190,20 @@ const App = {
         document.getElementById("startupScreen").classList.remove("hidden");
         document.getElementById("mainMenu").classList.add("hidden");
         document.getElementById("content").classList.add("hidden");
+        document.getElementById("menuButton").classList.add("hidden");
     },
 
     showMainMenu() {
         document.getElementById("startupScreen").classList.add("hidden");
         document.getElementById("mainMenu").classList.remove("hidden");
         document.getElementById("content").classList.add("hidden");
+        document.getElementById("menuButton").classList.add("hidden");
     },
 
     showContent() {
         document.getElementById("mainMenu").classList.add("hidden");
         document.getElementById("content").classList.remove("hidden");
+        document.getElementById("menuButton").classList.remove("hidden");
     },
 
     isPlantEnabledForQuiz(plant) {
