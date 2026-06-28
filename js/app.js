@@ -265,7 +265,11 @@ a hibák ellenére is használható.
             const hungarianName = entry.plant.names?.hu?.[0] || "";
             html += `
 <div class="image-error">
-    <strong>#${index + 1} &nbsp; ${latinName}</strong>
+    <strong>${latinName}</strong>
+    <br>
+    <small>
+        📄 plants.yaml, ${entry.line}. sor
+    </small>
 `;
             if (hungarianName) {
                 html += `
