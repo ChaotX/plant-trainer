@@ -233,6 +233,7 @@ button:disabled {
 
 .quiz-layout {
     display: flex;
+    flex-direction: row;
     align-items: stretch;
     gap: 16px;
 }
@@ -245,15 +246,13 @@ button:disabled {
 }
 
 .quiz-next {
-    width: 90px;
-    min-width: 90px;
+    flex: 0 0 90px;
     display: flex;
     align-items: center;
     justify-content: center;
-    align-self: stretch;
     font-size: 2rem;
     padding: 0;
-    flex: 0 0 90px;
+    align-self: stretch;
 }
 
 .quiz-actions {
@@ -285,4 +284,9 @@ button:disabled {
 
 #answerInput {
     width: min(650px, 100%);
+}
+
+.quiz-neutral {
+    background: #edf4ed !important;
+    color: #666 !important;
 }
