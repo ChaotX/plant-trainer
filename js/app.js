@@ -101,6 +101,11 @@ const App = {
             await this.loadIndex();
             await this.loadData();
             document.getElementById("appTitle").innerText = this.settings.title || sourceName;
+            const errors = this.validateImages();
+            if (errors.length > 0) {
+                this.showImageValidationErrors(errors);
+                return;
+            }
             this.showMainMenu();
             document.getElementById("loadStatus").innerText = "";
         } catch (error) {
@@ -124,6 +129,7 @@ const App = {
             this.plants = plantsData.plants || [];
         }
         console.log("Plants loaded:", this.plants.length);
+        this.validateImages();
     },
 
     mergeSettings(target, source) {
@@ -199,6 +205,65 @@ const App = {
 
     getQuizPlants() {
         return this.plants.filter((plant) => this.isPlantEnabledForQuiz(plant));
+    },
+
+    validateImages() {
+        const missing = [];
+        this.plants.forEach((plant) => {
+            const images = plant.images || [];
+            const missingImages = images.filter((imagePath) => !this.imageIndex[imagePath]);
+            if (missingImages.length === 0) {
+                return;
+            }
+            missing.push({
+                plant,
+                images: missingImages
+            });
+        });
+        return missing;
+    },
+
+    showImageValidationErrors(errors) {
+        const selector = document.getElementById("sourceSelector");
+        const sourceName = selector.options[selector.selectedIndex].text;
+        let html = `
+<h2>⚠ Hiányzó képek</h2>
+<p>
+A(z)
+<strong>${sourceName}</strong>
+adatforrás betöltése során
+olyan képek kerültek a
+plants.yaml fájlban
+hivatkozásra,
+amelyek nem találhatók
+meg a Google Drive mappában.
+</p>
+<button id="continueWithErrorsButton">
+    ⚠ Folytatás a hibák ellenére
+</button>
+<hr>
+`;
+        errors.forEach((entry) => {
+            const latinName = entry.plant.names?.la?.[0] || "(ismeretlen)";
+            html += `
+<div class="image-error">
+    <strong>
+        ${latinName}
+    </strong>
+    <ul>
+`;
+            entry.images.forEach((image) => {
+                html += `
+        <li>
+            ${image}
+        </li>
+`;
+            });
+            html += `
+    </ul>
+</div>
+`;
+        });
     },
 
     getMissingImageHtml(plant, imagePath) {
