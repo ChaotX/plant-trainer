@@ -39,19 +39,26 @@ const LearnMode = {
 </button>
 `
             : "";
+        const tags = plant.tags?.length
+            ? `
+<div class="plant-tags center">
+    ${plant.tags.join(" • ")}
+</div>
+`
+            : "";
         document.getElementById("content").innerHTML = `
 <div class="plant-card">
-    <div class="center">
+    <div class="navigation-buttons">
+        ${previousButton}
         <button id="showAnswerButton">
             ${toggleButtonText}
         </button>
+        <button id="nextPlantButton">
+            Következő ➡️
+        </button>
     </div>
-    <div id="plantImageContainer">
-        <div class="plant-image loading">
-            Kép betöltése...
-        </div>
-    </div>
-    <div id="plantNames" class="plant-names ${namesHiddenClass}">
+    <div id="plantNames"
+         class="plant-names ${namesHiddenClass}">
         <div class="plant-latin">
             ${latinName}
         </div>
@@ -59,13 +66,12 @@ const LearnMode = {
             ${hungarianName}
         </div>
     </div>
-    <div class="navigation-buttons">
-        ${previousButton}
-        <button id="nextPlantButton">
-            Következő ➡️
-        </button>
+    <div id="plantImageContainer">
+        <div class="plant-image loading">
+            Kép betöltése...
+        </div>
     </div>
-    <hr>
+    ${tags}
 </div>
 `;
         this.registerEvents();
@@ -73,30 +79,18 @@ const LearnMode = {
             this.prepareNext();
         }
         requestAnimationFrame(() => {
-            console.log("RENDER START", plant.names.la[0], entry.imagePath, token);
             ImageManager.getImage(entry.imagePath)
                 .then((imageData) => {
-                    console.log(
-                        "IMAGE READY",
-                        plant.names.la[0],
-                        entry.imagePath,
-                        token,
-                        this.renderToken
-                    );
                     if (token !== this.renderToken) {
                         return;
                     }
-                    console.log("SHOW IMAGE", plant.names.la[0], entry.imagePath);
-                    document.getElementById("plantImageContainer").innerHTML = `
-        <img src="${imageData}" class="plant-image">
-        `;
+                    document.getElementById("plantImageContainer").innerHTML =
+                        `<img src="${imageData}" class="plant-image">`;
                 })
                 .catch(() => {
-                    console.log("SHOW MISSING", plant.names.la[0], entry.imagePath);
                     if (token !== this.renderToken) {
                         return;
                     }
-
                     document.getElementById("plantImageContainer").innerHTML =
                         App.getMissingImageHtml(plant, entry.imagePath);
                 });
