@@ -75,7 +75,7 @@ const ImageManager = {
             return;
         }
         try {
-            await this.getImage(imagePath);
+            this.getImage(imagePath);
         } catch (error) {
             console.error(error);
         }
