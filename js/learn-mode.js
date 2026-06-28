@@ -66,9 +66,6 @@ const LearnMode = {
         </button>
     </div>
     <hr>
-    <button id="backToMenuButton">
-        🏠 Menü
-    </button>
 </div>
 `;
         this.registerEvents();
@@ -146,10 +143,6 @@ const LearnMode = {
             this.nextEntry = null;
             this.showNames = false;
             await this.render();
-        };
-
-        document.getElementById("backToMenuButton").onclick = () => {
-            App.showMainMenu();
         };
     },
 

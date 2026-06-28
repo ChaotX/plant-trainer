@@ -61,9 +61,6 @@ const MultipleChoiceQuiz = {
         .join("")}
 </div>
 <hr>
-<button id="backToMenuButton">
-    🏠 Menü
-</button>
 `;
         this.registerEvents(question);
         this.preloadNext();
@@ -112,9 +109,6 @@ const MultipleChoiceQuiz = {
                 this.showAnswer(question);
             });
         });
-        document
-            .getElementById("backToMenuButton")
-            .addEventListener("click", () => App.showMainMenu());
     },
 
     showAnswer(question) {
@@ -203,16 +197,7 @@ const MultipleChoiceQuiz = {
                 </div>
             `;
         }
-        html += `
-            <button id="backToMenuButton">
-                🏠 Menü
-            </button>
-        `;
-
         document.getElementById("content").innerHTML = html;
-        document
-            .getElementById("backToMenuButton")
-            .addEventListener("click", () => App.showMainMenu());
     },
 
     shuffle(array) {
