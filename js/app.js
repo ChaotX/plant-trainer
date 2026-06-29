@@ -3,7 +3,7 @@ const API_URL =
 
 const App = {
     defaultSettings: {
-        title: "Növényfelismerő",
+        title: "Növényismeret",
 
         difficulty: 1,
 
@@ -101,7 +101,6 @@ const App = {
             document.getElementById("loadStatus").innerText = "Betöltés...";
             await this.loadIndex();
             await this.loadData();
-            document.getElementById("appTitle").innerText = this.settings.title || sourceName;
             const errors = this.validateImages();
             if (errors.length > 0) {
                 console.log("SHOW ERRORS");
