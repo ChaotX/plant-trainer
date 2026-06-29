@@ -96,7 +96,18 @@ button:disabled {
 .menu-buttons {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 12px;
+}
+
+.menu-buttons button {
+    width: 100%;
+}
+
+#menuButton {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    font-size: 1.5rem;
 }
 
 #loadSourceButton {
@@ -182,15 +193,6 @@ button:disabled {
 }
 
 @media (min-width: 768px) {
-    .menu-buttons {
-        display: grid;
-        grid-template-columns:
-            1fr
-            1fr
-            1fr;
-        gap: 1rem;
-    }
-
     .navigation-buttons {
         gap: 1rem;
     }
