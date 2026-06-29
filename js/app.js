@@ -20,7 +20,7 @@ const App = {
 
             free_text: {
                 question_count: 10,
-                languages: "la"
+                language: "la"
             }
         }
     },
