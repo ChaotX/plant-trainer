@@ -253,6 +253,18 @@ button:disabled {
     font-size: 2rem;
     padding: 0;
     align-self: stretch;
+    transition:
+        background-color 0.2s,
+        color 0.2s,
+        border-color 0.2s,
+        opacity 0.2s;
+}
+
+.quiz-next:disabled {
+    background: #cfd8cf;
+    color: #6f806f;
+    border: 1px solid #b7c4b7;
+    opacity: 1;
 }
 
 .quiz-actions {
