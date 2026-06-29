@@ -248,7 +248,8 @@ button:disabled {
 }
 
 .quiz-next:disabled,
-#submitAnswerButton:disabled {
+#submitAnswerButton:disabled,
+#previousPlantButton:disabled {
     background: #cfd8cf;
     color: #6f806f;
     border: 1px solid #b7c4b7;
