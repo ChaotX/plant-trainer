@@ -96,7 +96,7 @@ const LearnMode = {
             }
             const entry = HistoryManager.previous();
             this.currentIndex = this.plants.indexOf(entry.plant);
-            this.showNames &&= !App.settings.learn.hide_name_on_next;
+            this.showNames &&= !App.settings.study.hide_name_on_next;
             await this.render();
         };
 
@@ -105,7 +105,7 @@ const LearnMode = {
                 const entry = HistoryManager.next();
                 this.currentIndex = this.plants.indexOf(entry.plant);
                 this.nextEntry = null;
-                this.showNames &&= !App.settings.learn.hide_name_on_next;
+                this.showNames &&= !App.settings.study.hide_name_on_next;
                 await this.render();
                 return;
             }
@@ -116,7 +116,7 @@ const LearnMode = {
             HistoryManager.push(this.nextEntry);
             this.currentIndex = this.plants.indexOf(this.nextEntry.plant);
             this.nextEntry = null;
-            this.showNames &&= !App.settings.learn.hide_name_on_next;
+            this.showNames &&= !App.settings.study.hide_name_on_next;
             await this.render();
         };
     },
