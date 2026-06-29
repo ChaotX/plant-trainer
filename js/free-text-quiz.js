@@ -51,7 +51,6 @@ const FreeTextQuiz = {
         ➡️
     </button>
 </div>
-<hr>
 `;
         this.registerEvents(question);
         document.getElementById("answerInput").focus();

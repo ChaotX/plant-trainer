@@ -31,7 +31,6 @@ const LearnMode = {
         const latinName = plant.names?.la?.[0] || "Ismeretlen";
         const hungarianName = plant.names?.hu?.[0] || "";
         const namesHiddenClass = this.showNames ? "" : "hidden";
-        const toggleButtonText = this.showNames ? "🙈 Név elrejtése" : "👁️ Név mutatása";
         const previousButton = HistoryManager.canGoPrevious()
             ? `
 <button id="previousPlantButton">
@@ -51,14 +50,13 @@ const LearnMode = {
     <div class="navigation-buttons">
         ${previousButton}
         <button id="showAnswerButton">
-            ${toggleButtonText}
+            ${this.showNames ? "🙈 Név elrejtése" : "👁️ Név mutatása"}
         </button>
         <button id="nextPlantButton">
             Következő ➡️
         </button>
     </div>
-    <div id="plantNames"
-        class="plant-names ${namesHiddenClass}">
+    <div id="plantNames" class="plant-names ${namesHiddenClass}">
         <div class="plant-latin">
             ${latinName}
         </div>

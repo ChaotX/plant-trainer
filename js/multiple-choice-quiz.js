@@ -62,10 +62,9 @@ const MultipleChoiceQuiz = {
             .join("")}
     </div>
     <button id="nextQuestionButton" class="quiz-next" disabled>
-        ➡️
+        ${this.currentQuestion + 1 >= this.questions.length ? "📊" : "➡️"}
     </button>
 </div>
-<hr>
 `;
         this.registerEvents(question);
         this.preloadNext();
@@ -127,9 +126,6 @@ const MultipleChoiceQuiz = {
     showAnswer() {
         const button = document.getElementById("nextQuestionButton");
         button.disabled = false;
-        if (this.currentQuestion + 1 >= this.questions.length) {
-            button.innerHTML = "📊";
-        }
         button.onclick = async () => {
             await this.nextQuestion();
         };
