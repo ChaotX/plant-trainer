@@ -304,3 +304,46 @@ button:disabled {
     background: #edf4ed !important;
     color: #666 !important;
 }
+
+.result-row {
+    display: grid;
+    grid-template-columns:
+        40px
+        120px
+        1fr;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.result-icon {
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+.result-image {
+    width: 120px;
+    border-radius: 8px;
+}
+
+.result-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.result-correct-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.result-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.result-answer {
+    color: #a62828;
+}
