@@ -48,7 +48,7 @@ const FreeTextQuiz = {
         Ellenőrzés
     </button>
     <button id="nextQuestionButton" class="quiz-next" disabled>
-        ➡️
+        ${this.currentQuestion + 1 >= this.questions.length ? "📊" : "➡️"}
     </button>
 </div>
 `;
@@ -116,9 +116,6 @@ ${question.correctAnswers.join(", ")}
 </strong>
 `;
         next.disabled = false;
-        if (this.currentQuestion + 1 >= this.questions.length) {
-            next.innerHTML = "📊";
-        }
         next.onclick = async () => {
             await this.nextQuestion();
         };

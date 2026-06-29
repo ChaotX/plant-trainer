@@ -260,10 +260,12 @@ button:disabled {
         opacity 0.2s;
 }
 
-.quiz-next:disabled {
+.quiz-next:disabled,
+#submitAnswerButton:disabled {
     background: #cfd8cf;
     color: #6f806f;
     border: 1px solid #b7c4b7;
+    box-shadow: none;
     opacity: 1;
 }
 
@@ -275,7 +277,7 @@ button:disabled {
 }
 
 .quiz-actions button {
-    width: 220px;
+    width: 180px;
 }
 
 .quiz-actions button:first-child {
