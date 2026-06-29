@@ -335,3 +335,36 @@ button:disabled {
 .result-answer {
     color: #a62828;
 }
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.setting-label {
+    font-weight: bold;
+    margin-top: 6px;
+}
+
+.settings-group h3 {
+    margin-bottom: 8px;
+}
+
+.settings-group input[type="number"] {
+    width: 110px;
+}
+
+.settings-group select {
+    width: 140px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.radio-group br {
+    display: none;
+}

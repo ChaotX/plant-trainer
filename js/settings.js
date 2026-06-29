@@ -44,7 +44,9 @@ const Settings = {
         <label class="setting-label">
             Kérdezett név
         </label>
-        ${this.languageSelector("mcLanguage", App.settings.quiz.multiple_choice.language)}
+        <div class="radio-group">
+            ${this.languageSelector("mcLanguage", App.settings.quiz.multiple_choice.language)}
+        </div>
     </div>
     <hr>
     <div class="settings-group">
@@ -56,7 +58,9 @@ const Settings = {
         <label class="setting-label">
             Kérdezett név
         </label>
-        ${this.languageSelector("ftLanguage", App.settings.quiz.free_text.language)}
+        <div class="radio-group">
+            ${this.languageSelector("ftLanguage", App.settings.quiz.free_text.language)}
+        </div>
     </div>
 </div>
 `;
@@ -97,7 +101,6 @@ const Settings = {
     <input type="radio" name="${groupName}" value="la" ${selected === "la" ? "checked" : ""}>
     Latin
 </label>
-<br>
 <label>
     <input type="radio" name="${groupName}" value="hu" ${selected === "hu" ? "checked" : ""}>
     Magyar
