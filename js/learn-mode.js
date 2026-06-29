@@ -72,7 +72,6 @@ const LearnMode = {
             Kép betöltése...
         </div>
     </div>
-    ${tags}
 </div>
 `;
         this.registerEvents();
