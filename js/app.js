@@ -128,32 +128,13 @@ const App = {
         }
         const settingsYaml = await this.fetchTextFile("settings.yaml");
         const plantsData = jsyaml.load(plantsYaml);
-        const settingsData = jsyaml.load(settingsYaml);
-        this.settings = this.mergeSettings(
-            structuredClone(this.defaultSettings),
-            settingsData || {}
-        );
+        this.settings = this.defaultSettings;
         if (Array.isArray(plantsData)) {
             this.plants = plantsData;
         } else {
             this.plants = plantsData.plants || [];
         }
         console.log("Plants loaded:", this.plants.length);
-    },
-
-    mergeSettings(target, source) {
-        if (!source) {
-            return target;
-        }
-        for (const key of Object.keys(source)) {
-            const value = source[key];
-            if (value && typeof value === "object" && !Array.isArray(value)) {
-                target[key] = this.mergeSettings(target[key] || {}, value);
-            } else {
-                target[key] = value;
-            }
-        }
-        return target;
     },
 
     async fetchTextFile(relativePath) {
