@@ -14,12 +14,13 @@ const FreeTextQuiz = {
 
     buildQuestions() {
         const questionCount = App.settings.quiz?.free_text?.question_count || 10;
+        const language = App.settings.quiz.free_text.language || "la";
         const plants = [...App.getQuizPlants()];
         this.shuffle(plants);
         return plants.slice(0, questionCount).map((plant) => ({
             plant,
             imagePath: ImageManager.pickRandomImage(plant),
-            correctAnswers: plant.names?.la || [],
+            correctAnswers: plant.names?.[language] || [],
             selectedAnswer: null,
             isCorrect: null
         }));
