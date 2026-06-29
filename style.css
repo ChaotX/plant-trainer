@@ -38,6 +38,16 @@ main {
     padding: 1rem;
 }
 
+.main-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.main-menu button {
+    width: 100%;
+}
+
 .hidden {
     display: none !important;
 }
