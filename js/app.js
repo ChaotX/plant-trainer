@@ -8,7 +8,7 @@ const App = {
         difficulty: 1,
 
         study: {
-            shuffle: true
+            hide_name_on_next: true
         },
 
         quiz: {

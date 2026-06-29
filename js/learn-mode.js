@@ -9,9 +9,7 @@ const LearnMode = {
     async start() {
         this.showNames = false;
         this.plants = [...App.getQuizPlants()];
-        if (App.settings.study?.shuffle) {
-            this.shuffle(this.plants);
-        }
+        this.shuffle(this.plants);
         HistoryManager.clear();
         this.currentIndex = 0;
         HistoryManager.push(this.createEntry(this.plants[this.currentIndex]));
@@ -98,7 +96,7 @@ const LearnMode = {
             }
             const entry = HistoryManager.previous();
             this.currentIndex = this.plants.indexOf(entry.plant);
-            this.showNames = false;
+            this.showNames &&= !App.settings.learn.hide_name_on_next;
             await this.render();
         };
 
@@ -107,7 +105,7 @@ const LearnMode = {
                 const entry = HistoryManager.next();
                 this.currentIndex = this.plants.indexOf(entry.plant);
                 this.nextEntry = null;
-                this.showNames = false;
+                this.showNames &&= !App.settings.learn.hide_name_on_next;
                 await this.render();
                 return;
             }
@@ -118,7 +116,7 @@ const LearnMode = {
             HistoryManager.push(this.nextEntry);
             this.currentIndex = this.plants.indexOf(this.nextEntry.plant);
             this.nextEntry = null;
-            this.showNames = false;
+            this.showNames &&= !App.settings.learn.hide_name_on_next;
             await this.render();
         };
     },
