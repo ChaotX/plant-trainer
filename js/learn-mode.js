@@ -88,8 +88,8 @@ const LearnMode = {
             this.showNames = !this.showNames;
             document.getElementById("plantNames").classList.toggle("hidden");
             document.getElementById("showAnswerButton").textContent = this.showNames
-                ? "🙈 Név elrejtése"
-                : "👁️ Név mutatása";
+                ? "🙈 Név"
+                : "👁️ Név";
         };
 
         document.getElementById("previousPlantButton").onclick = async () => {
