@@ -150,46 +150,47 @@ const MultipleChoiceQuiz = {
 
     async showResults() {
         let html = `
-            <h2>
-                Eredmény
-            </h2>
-            <p>
-                ${this.score} / ${this.questions.length}
-            </p>
-            <hr>
-        `;
-
+<h2>
+    Eredmény
+</h2>
+<p>
+    ${this.score} / ${this.questions.length}
+</p>
+<hr>
+`;
         for (const question of this.questions) {
             let imageHtml;
             try {
                 const imageUrl = await App.getImageUrl(question.imagePath);
-                imageHtml = `
-                    <img src="${imageUrl}" style=" width:120px; border-radius:8px;">
-                `;
-            } catch (error) {
+                imageHtml = `<img src="${imageUrl}" class="result-image">`;
+            } catch {
                 imageHtml = App.getMissingImageHtml(question.plant, question.plant.images?.[0]);
             }
             html += `
-                <div style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid #ddd;">
-                    ${imageHtml}
-                    <p>
-                        ${question.isCorrect ? "✅" : "❌"}
-                        <strong>
-                            ${question.correctAnswer}
-                        </strong>
-                    </p>
-                    ${
-                        question.isCorrect
-                            ? ""
-                            : `
-                                <p>
-                                    Te válaszod:
-                                    ${question.selectedAnswer}
-                                </p>
-                            `
-                    }
-                </div>
-            `;
+<div class="result-row">
+    <div class="result-icon">
+        ${question.isCorrect ? "✅" : "❌"}
+    </div>
+    ${imageHtml}
+    <div class="result-text">
+        <div class="result-correct-name">
+            ${question.correctAnswer}
+        </div>
+        ${
+            question.isCorrect
+                ? ""
+                : `
+<div class="result-label">
+    Te válaszod:
+</div>
+<div class="result-answer">
+    ${question.selectedAnswer}
+</div>
+`
+        }
+    </div>
+</div>
+`;
         }
         document.getElementById("content").innerHTML = html;
     },

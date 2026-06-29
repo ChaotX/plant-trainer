@@ -152,31 +152,33 @@ ${question.correctAnswers.join(", ")}
             let imageHtml;
             try {
                 const image = await ImageManager.getImage(question.imagePath);
-                imageHtml = `
-<img src="${image}" style="width:120px; border-radius:8px;">
-`;
+                imageHtml = `<img src="${image}" class="result-image">`;
             } catch {
                 imageHtml = App.getMissingImageHtml(question.plant, question.imagePath);
             }
             html += `
-<div style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid #ddd;">
-    ${imageHtml}
-    <p>
+<div class="result-row">
+    <div class="result-icon">
         ${question.isCorrect ? "✅" : "❌"}
-        <strong>
+    </div>
+    ${imageHtml}
+    <div class="result-text">
+        <div class="result-correct-name">
             ${question.correctAnswers[0]}
-        </strong>
-    </p>
-    ${
-        question.isCorrect
-            ? ""
-            : `
-<p>
+        </div>
+        ${
+            question.isCorrect
+                ? ""
+                : `
+<div class="result-label">
     Te válaszod:
+</div>
+<div class="result-answer">
     ${question.selectedAnswer}
-</p>
+</div>
 `
-    }
+        }
+    </div>
 </div>
 `;
         }
