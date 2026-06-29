@@ -31,30 +31,18 @@ const LearnMode = {
         const latinName = plant.names?.la?.[0] || "Ismeretlen";
         const hungarianName = plant.names?.hu?.[0] || "";
         const namesHiddenClass = this.showNames ? "" : "hidden";
-        const previousButton = HistoryManager.canGoPrevious()
-            ? `
-<button id="previousPlantButton">
-    ⬅️ Előző
-</button>
-`
-            : "";
+        const previousButton = `<button id="previousPlantButton" ${HistoryManager.canGoPrevious() ? "" : "disabled"}>⬅️</button>`;
         const tags = plant.tags?.length
-            ? `
-<div class="plant-tags">
-    (${plant.tags.join(" • ")})
-</div>
-`
+            ? `<div class="plant-tags">(${plant.tags.join(" • ")})</div>`
             : "";
         document.getElementById("content").innerHTML = `
 <div class="plant-card">
     <div class="navigation-buttons">
         ${previousButton}
         <button id="showAnswerButton">
-            ${this.showNames ? "🙈 Név elrejtése" : "👁️ Név mutatása"}
+            ${this.showNames ? "🙈 Név" : "👁️ Név"}
         </button>
-        <button id="nextPlantButton">
-            Következő ➡️
-        </button>
+        <button id="nextPlantButton">➡️</button>
     </div>
     <div id="plantNames" class="plant-names ${namesHiddenClass}">
         <div class="plant-latin">
@@ -104,18 +92,15 @@ const LearnMode = {
                 : "👁️ Név mutatása";
         };
 
-        const previousButton = document.getElementById("previousPlantButton");
-        if (previousButton) {
-            previousButton.onclick = async () => {
-                const entry = HistoryManager.previous();
-                if (!entry) {
-                    return;
-                }
-                this.currentIndex = this.plants.indexOf(entry.plant);
-                this.showNames = false;
-                await this.render();
-            };
-        }
+        document.getElementById("previousPlantButton").onclick = async () => {
+            if (!HistoryManager.canGoPrevious()) {
+                return;
+            }
+            const entry = HistoryManager.previous();
+            this.currentIndex = this.plants.indexOf(entry.plant);
+            this.showNames = false;
+            await this.render();
+        };
 
         document.getElementById("nextPlantButton").onclick = async () => {
             if (HistoryManager.canGoNext()) {
