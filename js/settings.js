@@ -45,7 +45,7 @@ const Settings = {
             Kérdezett név
         </label>
         <div class="radio-group">
-            ${this.languageSelector("mcLanguage", App.settings.quiz.multiple_choice.language)}
+            ${this.languageSelector("mcLanguage", App.settings.quiz.multiple_choice.display_languages)}
         </div>
     </div>
     <hr>
@@ -79,9 +79,16 @@ const Settings = {
         document.getElementById("mcChoiceCount").onchange = (e) => {
             App.settings.quiz.multiple_choice.choice_count = Number(e.target.value);
         };
-        document.querySelectorAll("input[name=mcLanguage]").forEach((radio) => {
-            radio.onchange = () => {
-                App.settings.quiz.multiple_choice.language = radio.value;
+        document.querySelectorAll("input[name=mcLanguage]").forEach((checkbox) => {
+            checkbox.onchange = () => {
+                const selected = [
+                    ...document.querySelectorAll("input[name=mcLanguage]:checked")
+                ].map((cb) => cb.value);
+                if (selected.length === 0) {
+                    checkbox.checked = true;
+                    return;
+                }
+                App.settings.quiz.multiple_choice.display_languages = selected;
             };
         });
         document.getElementById("ftQuestionCount").oninput = (e) => {
@@ -96,13 +103,14 @@ const Settings = {
     },
 
     languageSelector(groupName, selected) {
+        const selected = new Set(selected || []);
         return `
 <label>
-    <input type="radio" name="${groupName}" value="la" ${selected === "la" ? "checked" : ""}>
+    <input type="checkbox" name="${groupName}" value="la" ${selected.has("la") ? "checked" : ""}>
     Latin
 </label>
 <label>
-    <input type="radio" name="${groupName}" value="hu" ${selected === "hu" ? "checked" : ""}>
+    <input type="checkbox" name="${groupName}" value="hu" ${selected.has("hu") ? "checked" : ""}>
     Magyar
 </label>
 `;

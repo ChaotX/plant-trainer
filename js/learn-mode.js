@@ -26,8 +26,7 @@ const LearnMode = {
         const token = ++this.renderToken;
         const entry = this.getCurrentEntry();
         const plant = entry.plant;
-        const latinName = plant.names?.la?.[0] || "Ismeretlen";
-        const hungarianName = plant.names?.hu?.[0] || "";
+        const names = App.getPlantDisplayName(plant, ["la", "hu"]);
         const namesHiddenClass = this.showNames ? "" : "hidden";
         const previousButton = `<button id="previousPlantButton" ${HistoryManager.canGoPrevious() ? "" : "disabled"}>⬅️</button>`;
         const tags = plant.tags?.length
@@ -43,12 +42,7 @@ const LearnMode = {
         <button id="nextPlantButton">➡️</button>
     </div>
     <div id="plantNames" class="plant-names ${namesHiddenClass}">
-        <div class="plant-latin">
-            ${latinName}
-        </div>
-        <div class="plant-hungarian">
-            ${hungarianName}
-        </div>
+        ${names}
         ${tags}
     </div>
     <div id="plantImageContainer">

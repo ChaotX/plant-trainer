@@ -17,12 +17,12 @@ const MultipleChoiceQuiz = {
         const choiceCount = App.settings.quiz?.multiple_choice?.choice_count || 4;
         const plants = [...App.getQuizPlants()];
         this.shuffle(plants);
+        const languages = App.settings.quiz.multiple_choice.display_languages ?? ["la"];
         return plants.slice(0, questionCount).map((plant) => {
-            const correctAnswer = plant.names?.la?.[0] || "Ismeretlen";
+            const correctAnswer = App.getPlantDisplayName(plant, languages);
             const wrongAnswers = App.getQuizPlants()
                 .filter((p) => p !== plant)
-                .map((p) => p.names?.la?.[0])
-                .filter(Boolean);
+                .map((p) => App.getPlantDisplayName(p, languages));
             this.shuffle(wrongAnswers);
             const choices = [correctAnswer, ...wrongAnswers.slice(0, choiceCount - 1)];
             this.shuffle(choices);
