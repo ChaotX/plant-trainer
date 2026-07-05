@@ -15,7 +15,7 @@ const App = {
             multiple_choice: {
                 question_count: 10,
                 choice_count: 4,
-                language: "la"
+                display_languages: ["la"]
             },
 
             free_text: {
@@ -197,6 +197,13 @@ const App = {
 
     getQuizPlants() {
         return this.plants.filter((plant) => this.isPlantEnabledForQuiz(plant));
+    },
+
+    getPlantDisplayName(plant, languages = ["la"], separator = "<br>") {
+        return languages
+            .map((lang) => plant.names?.[lang]?.[0])
+            .filter(Boolean)
+            .join(separator);
     },
 
     validateImages() {
