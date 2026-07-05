@@ -102,15 +102,14 @@ const Settings = {
         });
     },
 
-    languageSelector(groupName, selectedLangs) {
-        const selected = new Set(selectedLangs || []);
+    languageSelector(groupName, selectedLangs = []) {
         return `
 <label>
-    <input type="checkbox" name="${groupName}" value="la" ${selected.has("la") ? "checked" : ""}>
+    <input type="checkbox" name="${groupName}" value="la" ${selectedLangs.includes("la") ? "checked" : ""}>
     Latin
 </label>
 <label>
-    <input type="checkbox" name="${groupName}" value="hu" ${selected.has("hu") ? "checked" : ""}>
+    <input type="checkbox" name="${groupName}" value="hu" ${selectedLangs.includes("hu") ? "checked" : ""}>
     Magyar
 </label>
 `;
