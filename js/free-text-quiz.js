@@ -14,12 +14,13 @@ const FreeTextQuiz = {
 
     buildQuestions() {
         const questionCount = App.settings.quiz?.free_text?.question_count || 10;
+        const language = App.settings.quiz.free_text.language || "la";
         const plants = [...App.getQuizPlants()];
         this.shuffle(plants);
         return plants.slice(0, questionCount).map((plant) => ({
             plant,
             imagePath: ImageManager.pickRandomImage(plant),
-            correctAnswers: plant.names?.la || [],
+            correctAnswers: plant.names?.[language] || [],
             selectedAnswer: null,
             isCorrect: null
         }));
@@ -39,15 +40,18 @@ const FreeTextQuiz = {
 </div>
 <div class="free-text-answer">
     <input id="answerInput" type="text" autocomplete="off" placeholder="Latin név...">
+</div>
+<div id="answerResult" class="quiz-feedback">
+    &nbsp;
+</div>
+<div class="quiz-actions">
     <button id="submitAnswerButton">
         Ellenőrzés
     </button>
+    <button id="nextQuestionButton" class="quiz-next" disabled>
+        ${this.currentQuestion + 1 >= this.questions.length ? "📊" : "➡️"}
+    </button>
 </div>
-<div id="answerResult"></div>
-<hr>
-<button id="backToMenuButton">
-    🏠 Menü
-</button>
 `;
         this.registerEvents(question);
         document.getElementById("answerInput").focus();
@@ -94,30 +98,26 @@ const FreeTextQuiz = {
                 submit();
             }
         };
-        document.getElementById("backToMenuButton").onclick = () => App.showMainMenu();
     },
+
     showAnswer(question) {
-        const buttonText =
-            this.currentQuestion + 1 >= this.questions.length
-                ? "📊 Eredmény"
-                : "➡️ Következő kérdés";
+        const input = document.getElementById("answerInput");
+        const submit = document.getElementById("submitAnswerButton");
+        const next = document.getElementById("nextQuestionButton");
+        input.disabled = true;
+        submit.disabled = true;
+        if (question.isCorrect) {
+            input.classList.add("quiz-correct");
+        } else {
+            input.classList.add("quiz-wrong");
+        }
         document.getElementById("answerResult").innerHTML = `
-<p>
-    ${question.isCorrect ? "✅ Helyes" : "❌ Hibás"}
-</p>
-<p>
-    Helyes válasz:
-    <strong>
-        ${question.correctAnswers.join(", ")}
-    </strong>
-</p>
-<button id="nextQuestionButton">
-    ${buttonText}
-</button>
+✔ <strong>
+${question.correctAnswers.join(", ")}
+</strong>
 `;
-        document.getElementById("answerInput").disabled = true;
-        document.getElementById("submitAnswerButton").disabled = true;
-        document.getElementById("nextQuestionButton").onclick = async () => {
+        next.disabled = false;
+        next.onclick = async () => {
             await this.nextQuestion();
         };
     },
@@ -153,39 +153,37 @@ const FreeTextQuiz = {
             let imageHtml;
             try {
                 const image = await ImageManager.getImage(question.imagePath);
-                imageHtml = `
-<img src="${image}" style="width:120px; border-radius:8px;">
-`;
+                imageHtml = `<img src="${image}" class="result-image">`;
             } catch {
                 imageHtml = App.getMissingImageHtml(question.plant, question.imagePath);
             }
             html += `
-<div style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid #ddd;">
-    ${imageHtml}
-    <p>
+<div class="result-row">
+    <div class="result-icon">
         ${question.isCorrect ? "✅" : "❌"}
-        <strong>
+    </div>
+    ${imageHtml}
+    <div class="result-text">
+        <div class="result-correct-name">
             ${question.correctAnswers[0]}
-        </strong>
-    </p>
-    ${
-        question.isCorrect
-            ? ""
-            : `
-<p>
+        </div>
+        ${
+            question.isCorrect
+                ? ""
+                : `
+<div class="result-label">
     Te válaszod:
+</div>
+<div class="result-answer">
     ${question.selectedAnswer}
-</p>
+</div>
 `
-    }
+        }
+    </div>
 </div>
 `;
         }
-        html += `
-<button id="backToMenuButton"> 🏠 Menü </button>
-`;
         document.getElementById("content").innerHTML = html;
-        document.getElementById("backToMenuButton").onclick = () => App.showMainMenu();
     },
 
     shuffle(array) {

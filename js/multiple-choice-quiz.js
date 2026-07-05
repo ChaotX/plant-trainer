@@ -49,21 +49,22 @@ const MultipleChoiceQuiz = {
         Kép betöltése...
     </div>
 </div>
-<div class="quiz-choices">
-    ${question.choices
-        .map(
-            (choice) => `
-            <button class="quiz-choice" data-answer="${choice}">
-                ${choice}
-            </button>
-            `
-        )
-        .join("")}
-</div>
-<hr>
-<button id="backToMenuButton">
-    🏠 Menü
+<div class="quiz-layout">
+    <div class="quiz-choices">
+        ${question.choices
+            .map(
+                (choice) => `
+<button class="quiz-choice" data-answer="${choice}">
+    ${choice}
 </button>
+`
+            )
+            .join("")}
+    </div>
+    <button id="nextQuestionButton" class="quiz-next" disabled>
+        ${this.currentQuestion + 1 >= this.questions.length ? "📊" : "➡️"}
+    </button>
+</div>
 `;
         this.registerEvents(question);
         this.preloadNext();
@@ -109,38 +110,25 @@ const MultipleChoiceQuiz = {
                         }
                     });
                 }
+                document.querySelectorAll(".quiz-choice").forEach((btn) => {
+                    if (
+                        !btn.classList.contains("quiz-correct") &&
+                        !btn.classList.contains("quiz-wrong")
+                    ) {
+                        btn.classList.add("quiz-neutral");
+                    }
+                });
                 this.showAnswer(question);
             });
         });
-        document
-            .getElementById("backToMenuButton")
-            .addEventListener("click", () => App.showMainMenu());
     },
 
-    showAnswer(question) {
-        const result = document.createElement("div");
-        if (this.currentQuestion + 1 >= this.questions.length) {
-            buttonText = "📊 Eredmény";
-        } else {
-            buttonText = "➡️ Következő kérdés";
-        }
-        result.className = "quiz-result";
-        result.innerHTML = `
-            <p>
-                Helyes válasz:
-                <strong>
-                    ${question.correctAnswer}
-                </strong>
-            </p>
-            <button id="nextQuestionButton">
-                ${buttonText}
-            </button>
-        `;
-
-        document.getElementById("content").appendChild(result);
-        document.getElementById("nextQuestionButton").addEventListener("click", async () => {
+    showAnswer() {
+        const button = document.getElementById("nextQuestionButton");
+        button.disabled = false;
+        button.onclick = async () => {
             await this.nextQuestion();
-        });
+        };
     },
 
     preloadNext() {
@@ -162,57 +150,49 @@ const MultipleChoiceQuiz = {
 
     async showResults() {
         let html = `
-            <h2>
-                Eredmény
-            </h2>
-            <p>
-                ${this.score} / ${this.questions.length}
-            </p>
-            <hr>
-        `;
-
+<h2>
+    Eredmény
+</h2>
+<p>
+    ${this.score} / ${this.questions.length}
+</p>
+<hr>
+`;
         for (const question of this.questions) {
             let imageHtml;
             try {
                 const imageUrl = await App.getImageUrl(question.imagePath);
-                imageHtml = `
-                    <img src="${imageUrl}" style=" width:120px; border-radius:8px;">
-                `;
-            } catch (error) {
+                imageHtml = `<img src="${imageUrl}" class="result-image">`;
+            } catch {
                 imageHtml = App.getMissingImageHtml(question.plant, question.plant.images?.[0]);
             }
             html += `
-                <div style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid #ddd;">
-                    ${imageHtml}
-                    <p>
-                        ${question.isCorrect ? "✅" : "❌"}
-                        <strong>
-                            ${question.correctAnswer}
-                        </strong>
-                    </p>
-                    ${
-                        question.isCorrect
-                            ? ""
-                            : `
-                                <p>
-                                    Te válaszod:
-                                    ${question.selectedAnswer}
-                                </p>
-                            `
-                    }
-                </div>
-            `;
+<div class="result-row">
+    <div class="result-icon">
+        ${question.isCorrect ? "✅" : "❌"}
+    </div>
+    ${imageHtml}
+    <div class="result-text">
+        <div class="result-correct-name">
+            ${question.correctAnswer}
+        </div>
+        ${
+            question.isCorrect
+                ? ""
+                : `
+<div class="result-label">
+    Te válaszod:
+</div>
+<div class="result-answer">
+    ${question.selectedAnswer}
+</div>
+`
         }
-        html += `
-            <button id="backToMenuButton">
-                🏠 Menü
-            </button>
-        `;
-
+    </div>
+</div>
+`;
+        }
         document.getElementById("content").innerHTML = html;
-        document
-            .getElementById("backToMenuButton")
-            .addEventListener("click", () => App.showMainMenu());
     },
 
     shuffle(array) {
