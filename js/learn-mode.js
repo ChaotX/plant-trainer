@@ -9,9 +9,7 @@ const LearnMode = {
     async start() {
         this.showNames = false;
         this.plants = [...App.getQuizPlants()];
-        if (App.settings.study?.shuffle) {
-            this.shuffle(this.plants);
-        }
+        this.shuffle(this.plants);
         HistoryManager.clear();
         this.currentIndex = 0;
         HistoryManager.push(this.createEntry(this.plants[this.currentIndex]));
@@ -31,25 +29,18 @@ const LearnMode = {
         const latinName = plant.names?.la?.[0] || "Ismeretlen";
         const hungarianName = plant.names?.hu?.[0] || "";
         const namesHiddenClass = this.showNames ? "" : "hidden";
-        const toggleButtonText = this.showNames ? "🙈 Név elrejtése" : "👁️ Név mutatása";
-        const previousButton = HistoryManager.canGoPrevious()
-            ? `
-<button id="previousPlantButton">
-    ⬅️ Előző
-</button>
-`
+        const previousButton = `<button id="previousPlantButton" ${HistoryManager.canGoPrevious() ? "" : "disabled"}>⬅️</button>`;
+        const tags = plant.tags?.length
+            ? `<div class="plant-tags">(${plant.tags.join(" • ")})</div>`
             : "";
         document.getElementById("content").innerHTML = `
 <div class="plant-card">
-    <div class="center">
+    <div class="navigation-buttons">
+        ${previousButton}
         <button id="showAnswerButton">
-            ${toggleButtonText}
+            ${this.showNames ? "🙈 Név" : "👁️ Név"}
         </button>
-    </div>
-    <div id="plantImageContainer">
-        <div class="plant-image loading">
-            Kép betöltése...
-        </div>
+        <button id="nextPlantButton">➡️</button>
     </div>
     <div id="plantNames" class="plant-names ${namesHiddenClass}">
         <div class="plant-latin">
@@ -58,17 +49,13 @@ const LearnMode = {
         <div class="plant-hungarian">
             ${hungarianName}
         </div>
+        ${tags}
     </div>
-    <div class="navigation-buttons">
-        ${previousButton}
-        <button id="nextPlantButton">
-            Következő ➡️
-        </button>
+    <div id="plantImageContainer">
+        <div class="plant-image loading">
+            Kép betöltése...
+        </div>
     </div>
-    <hr>
-    <button id="backToMenuButton">
-        🏠 Menü
-    </button>
 </div>
 `;
         this.registerEvents();
@@ -76,30 +63,18 @@ const LearnMode = {
             this.prepareNext();
         }
         requestAnimationFrame(() => {
-            console.log("RENDER START", plant.names.la[0], entry.imagePath, token);
             ImageManager.getImage(entry.imagePath)
                 .then((imageData) => {
-                    console.log(
-                        "IMAGE READY",
-                        plant.names.la[0],
-                        entry.imagePath,
-                        token,
-                        this.renderToken
-                    );
                     if (token !== this.renderToken) {
                         return;
                     }
-                    console.log("SHOW IMAGE", plant.names.la[0], entry.imagePath);
-                    document.getElementById("plantImageContainer").innerHTML = `
-        <img src="${imageData}" class="plant-image">
-        `;
+                    document.getElementById("plantImageContainer").innerHTML =
+                        `<img src="${imageData}" class="plant-image">`;
                 })
                 .catch(() => {
-                    console.log("SHOW MISSING", plant.names.la[0], entry.imagePath);
                     if (token !== this.renderToken) {
                         return;
                     }
-
                     document.getElementById("plantImageContainer").innerHTML =
                         App.getMissingImageHtml(plant, entry.imagePath);
                 });
@@ -111,29 +86,26 @@ const LearnMode = {
             this.showNames = !this.showNames;
             document.getElementById("plantNames").classList.toggle("hidden");
             document.getElementById("showAnswerButton").textContent = this.showNames
-                ? "🙈 Név elrejtése"
-                : "👁️ Név mutatása";
+                ? "🙈 Név"
+                : "👁️ Név";
         };
 
-        const previousButton = document.getElementById("previousPlantButton");
-        if (previousButton) {
-            previousButton.onclick = async () => {
-                const entry = HistoryManager.previous();
-                if (!entry) {
-                    return;
-                }
-                this.currentIndex = this.plants.indexOf(entry.plant);
-                this.showNames = false;
-                await this.render();
-            };
-        }
+        document.getElementById("previousPlantButton").onclick = async () => {
+            if (!HistoryManager.canGoPrevious()) {
+                return;
+            }
+            const entry = HistoryManager.previous();
+            this.currentIndex = this.plants.indexOf(entry.plant);
+            this.showNames &&= !App.settings.study.hide_name_on_next;
+            await this.render();
+        };
 
         document.getElementById("nextPlantButton").onclick = async () => {
             if (HistoryManager.canGoNext()) {
                 const entry = HistoryManager.next();
                 this.currentIndex = this.plants.indexOf(entry.plant);
                 this.nextEntry = null;
-                this.showNames = false;
+                this.showNames &&= !App.settings.study.hide_name_on_next;
                 await this.render();
                 return;
             }
@@ -144,12 +116,8 @@ const LearnMode = {
             HistoryManager.push(this.nextEntry);
             this.currentIndex = this.plants.indexOf(this.nextEntry.plant);
             this.nextEntry = null;
-            this.showNames = false;
+            this.showNames &&= !App.settings.study.hide_name_on_next;
             await this.render();
-        };
-
-        document.getElementById("backToMenuButton").onclick = () => {
-            App.showMainMenu();
         };
     },
 

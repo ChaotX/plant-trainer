@@ -4,7 +4,7 @@
         <link rel="icon" type="image/svg+xml" href="favicon.svg" />
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Növényfelismerő</title>
+        <title>Növényismeret</title>
         <link rel="stylesheet" href="style.css" />
         <script src="vendor/js-yaml.min.js"></script>
         <script src="js/image-manager.js"></script>
@@ -17,7 +17,8 @@
     </head>
     <body>
         <header>
-            <h1 id="appTitle">🌿 Növényfelismerő</h1>
+            <h1 id="appTitle">🌿 Növényismeret</h1>
+            <button id="menuButton" class="hidden">☰</button>
         </header>
         <main>
             <!-- ============================================ -->
@@ -32,6 +33,7 @@
                 <br />
                 <button id="loadSourceButton">Betöltés</button>
                 <div id="loadStatus"></div>
+                <div id="startupValidationErrors"></div>
             </section>
 
             <!-- ============================================ -->

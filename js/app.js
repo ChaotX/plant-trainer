@@ -3,12 +3,12 @@ const API_URL =
 
 const App = {
     defaultSettings: {
-        title: "Növényfelismerő",
+        title: "Növényismeret",
 
         difficulty: 1,
 
         study: {
-            shuffle: true
+            hide_name_on_next: true
         },
 
         quiz: {
@@ -20,7 +20,7 @@ const App = {
 
             free_text: {
                 question_count: 10,
-                required_languages: ["la"]
+                language: "la"
             }
         }
     },
@@ -59,6 +59,7 @@ const App = {
             .getElementById("freeTextButton")
             .addEventListener("click", () => FreeTextQuiz.start());
         document.getElementById("settingsButton").addEventListener("click", () => Settings.start());
+        document.getElementById("menuButton").addEventListener("click", () => this.showMainMenu());
     },
 
     async loadIndex() {
@@ -100,7 +101,13 @@ const App = {
             document.getElementById("loadStatus").innerText = "Betöltés...";
             await this.loadIndex();
             await this.loadData();
-            document.getElementById("appTitle").innerText = this.settings.title || sourceName;
+            const errors = this.validateImages();
+            if (errors.length > 0) {
+                console.log("SHOW ERRORS");
+                this.showImageValidationErrors(errors);
+                console.log("SHOW ERRORS DONE");
+                return;
+            }
             this.showMainMenu();
             document.getElementById("loadStatus").innerText = "";
         } catch (error) {
@@ -111,34 +118,22 @@ const App = {
 
     async loadData() {
         const plantsYaml = await this.fetchTextFile("plants.yaml");
+        this.plantLineNumbers = [];
+        const lines = plantsYaml.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith("- names:")) {
+                this.plantLineNumbers.push(i + 1);
+            }
+        }
         const settingsYaml = await this.fetchTextFile("settings.yaml");
         const plantsData = jsyaml.load(plantsYaml);
-        const settingsData = jsyaml.load(settingsYaml);
-        this.settings = this.mergeSettings(
-            structuredClone(this.defaultSettings),
-            settingsData || {}
-        );
+        this.settings = this.defaultSettings;
         if (Array.isArray(plantsData)) {
             this.plants = plantsData;
         } else {
             this.plants = plantsData.plants || [];
         }
         console.log("Plants loaded:", this.plants.length);
-    },
-
-    mergeSettings(target, source) {
-        if (!source) {
-            return target;
-        }
-        for (const key of Object.keys(source)) {
-            const value = source[key];
-            if (value && typeof value === "object" && !Array.isArray(value)) {
-                target[key] = this.mergeSettings(target[key] || {}, value);
-            } else {
-                target[key] = value;
-            }
-        }
-        return target;
     },
 
     async fetchTextFile(relativePath) {
@@ -170,17 +165,20 @@ const App = {
         document.getElementById("startupScreen").classList.remove("hidden");
         document.getElementById("mainMenu").classList.add("hidden");
         document.getElementById("content").classList.add("hidden");
+        document.getElementById("menuButton").classList.add("hidden");
     },
 
     showMainMenu() {
         document.getElementById("startupScreen").classList.add("hidden");
         document.getElementById("mainMenu").classList.remove("hidden");
         document.getElementById("content").classList.add("hidden");
+        document.getElementById("menuButton").classList.add("hidden");
     },
 
     showContent() {
         document.getElementById("mainMenu").classList.add("hidden");
         document.getElementById("content").classList.remove("hidden");
+        document.getElementById("menuButton").classList.remove("hidden");
     },
 
     isPlantEnabledForQuiz(plant) {
@@ -199,6 +197,82 @@ const App = {
 
     getQuizPlants() {
         return this.plants.filter((plant) => this.isPlantEnabledForQuiz(plant));
+    },
+
+    validateImages() {
+        const missing = [];
+        this.plants.forEach((plant, index) => {
+            const images = plant.images || [];
+            const missingImages = images.filter((imagePath) => !this.imageIndex[imagePath]);
+            if (missingImages.length === 0) {
+                return;
+            }
+            missing.push({
+                plant,
+                line: this.plantLineNumbers[index],
+                images: missingImages
+            });
+        });
+        return missing;
+    },
+
+    showImageValidationErrors(errors) {
+        console.log("ENTER showImageValidationErrors");
+        const selector = document.getElementById("sourceSelector");
+        const sourceName = selector.options[selector.selectedIndex].text;
+        let html = `
+<h2>⚠ Hiányzó vagy hibás képútvonalak</h2>
+<p>
+A(z)
+<strong>${sourceName}</strong>
+adatforrás betöltése során a
+<b>plants.yaml</b> fájlban
+<strong>${errors.length}</strong>
+hibás képútvonal található.
+</p>
+<p>
+Javasolt a plants.yaml javítása, de az alkalmazás
+a hibák ellenére is használható.
+</p>
+<button id="continueWithErrorsButton">
+    ⚠ Folytatás a hibák ellenére
+</button>
+<hr>
+`;
+        errors.forEach((entry, index) => {
+            const latinName = entry.plant.names?.la?.[0] || "(ismeretlen)";
+            const hungarianName = entry.plant.names?.hu?.[0] || "";
+            html += `
+<div class="image-error">
+    <strong>${latinName}</strong>
+    <br>
+    <small>
+        📄 plants.yaml, ${entry.line}. sor
+    </small>
+`;
+            if (hungarianName) {
+                html += `
+    <br>
+    <em>${hungarianName}</em>
+`;
+            }
+            html += `
+    <ul>
+`;
+            entry.images.forEach((imagePath) => {
+                html += `<li>${imagePath}</li>`;
+            });
+            html += `
+    </ul>
+</div>
+`;
+        });
+        console.log("SETTING HTML");
+        document.getElementById("loadStatus").innerHTML = html;
+        document.getElementById("continueWithErrorsButton").onclick = () => {
+            document.getElementById("loadStatus").innerHTML = "";
+            this.showMainMenu();
+        };
     },
 
     getMissingImageHtml(plant, imagePath) {
