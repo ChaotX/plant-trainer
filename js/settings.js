@@ -102,8 +102,8 @@ const Settings = {
         });
     },
 
-    languageSelector(groupName, selectedLanguages) {
-        const selected = new Set(selectedLanguages || []);
+    languageSelector(groupName, selectedLangs) {
+        const selected = new Set(selectedLangs || []);
         return `
 <label>
     <input type="checkbox" name="${groupName}" value="la" ${selected.has("la") ? "checked" : ""}>
