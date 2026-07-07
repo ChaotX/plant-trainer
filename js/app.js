@@ -210,6 +210,10 @@ const App = {
         return (plant.tags || []).some((tag) => tag.toLowerCase().includes(filter));
     },
 
+    getDifficultyPlants() {
+        return this.plants.filter((plant) => this.isPlantEnabledForDifficulty(plant));
+    },
+
     getQuizPlants() {
         return this.plants.filter((plant) => this.isPlantEnabledForQuiz(plant));
     },
