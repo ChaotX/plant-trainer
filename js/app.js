@@ -154,7 +154,7 @@ const App = {
     },
 
     getPlantNames(plant, language) {
-        const names = App.getPlantNames(plant, language);
+        const names = plant.names?.[language];
 
         if (Array.isArray(names)) {
             return names;
