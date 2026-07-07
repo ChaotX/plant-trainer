@@ -76,6 +76,7 @@ const Settings = {
         document.querySelectorAll("input[name=difficulty]").forEach((radio) => {
             radio.onchange = () => {
                 App.settings.difficulty = Number(radio.value);
+                this.updateTagFilterInfo();
             };
         });
         document.getElementById("hideNameOnNextCheckbox").onchange = (e) => {
@@ -118,10 +119,13 @@ const Settings = {
     },
 
     updateTagFilterInfo() {
+        const info = document.getElementById("tagFilterInfo");
+        if (!info) {
+            return;
+        }
         const difficulty = App.getDifficultyPlants().length;
         const filtered = App.getQuizPlants().length;
-        document.getElementById("tagFilterInfo").textContent =
-            `A nehézségi szintnek megfelelő ${difficulty} növényből ${filtered} felel meg a tag szűrőnek.`;
+        info.textContent = `A nehézségi szintnek megfelelő ${difficulty} növényből ${filtered} felel meg a tag szűrőnek.`;
     },
 
     languageSelector(groupName, selectedLangs = []) {

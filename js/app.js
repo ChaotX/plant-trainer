@@ -236,7 +236,7 @@ const App = {
         }
 
         const tags = Array.isArray(plant.tags) ? plant.tags : [];
-        return tags.some((tag) => tag.toLowerCase().includes(filter));
+        return tags.some((tag) => typeof tag === "string" && tag.toLowerCase().includes(filter));
     },
 
     getDifficultyPlants() {
