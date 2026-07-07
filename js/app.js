@@ -207,6 +207,32 @@ const App = {
         return this.plants.filter((plant) => this.isPlantEnabledForQuiz(plant));
     },
 
+    ensureEnoughPlants(minimum) {
+        const available = this.getQuizPlants().length;
+
+        if (available >= minimum) {
+            return true;
+        }
+
+        this.showContent();
+
+        document.getElementById("content").innerHTML = `
+<div class="plant-card">
+    <h2>⚠ Nem indítható</h2>
+    <p>
+        A jelenlegi beállításokkal csak <strong>${available}</strong> növény érhető el.
+    </p>
+    <p>
+        Legalább <strong>${minimum}</strong> növény szükséges.
+    </p>
+    <p>
+        Módosítsd a nehézségi szintet vagy a tag szűrőt.
+    </p>
+</div>
+`;
+        return false;
+    },
+
     getPlantDisplayName(plant, languages = ["la"], separator = "<br>") {
         return languages
             .map((lang) => plant.names?.[lang]?.[0])
