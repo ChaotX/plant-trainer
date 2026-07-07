@@ -230,7 +230,8 @@ const App = {
                 "Invalid tags:",
                 App.getPlantPrimaryName(plant, "la"),
                 plant.tags,
-                typeof plant.tags
+                typeof plant.tags,
+                JSON.stringify(plant.tags)
             );
         }
 
