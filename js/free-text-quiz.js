@@ -5,6 +5,9 @@ const FreeTextQuiz = {
     renderToken: 0,
 
     async start() {
+        if (!App.ensureEnoughPlants(1)) {
+            return;
+        }
         this.currentQuestion = 0;
         this.score = 0;
         this.questions = this.buildQuestions();

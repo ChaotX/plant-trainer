@@ -7,6 +7,9 @@ const LearnMode = {
     randomEntry: null,
 
     async start() {
+        if (!App.ensureEnoughPlants(1)) {
+            return;
+        }
         this.showNames = false;
         this.plants = [...App.getQuizPlants()];
         this.shuffle(this.plants);
