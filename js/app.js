@@ -7,6 +7,10 @@ const App = {
 
         difficulty: 1,
 
+        filter: {
+            tag: ""
+        },
+
         study: {
             hide_name_on_next: true
         },
@@ -185,14 +189,18 @@ const App = {
         if (plant.level == null) {
             return true;
         }
-
         const difficulty = Number(this.settings.difficulty);
-
-        if (Array.isArray(plant.level)) {
-            return plant.level.some((level) => Number(level) === difficulty);
+        const difficultyMatches =
+            plant.level == null
+                ? true
+                : Array.isArray(plant.level)
+                  ? plant.level.some((level) => Number(level) === difficulty)
+                  : Number(plant.level) === difficulty;
+        if (!difficultyMatches) {
+            return false;
         }
-
-        return Number(plant.level) === difficulty;
+        const filter = this.settings.filter.tag.trim().toLowerCase();
+        return (plant.tags || []).some((tag) => tag.toLowerCase().includes(tagFilter));
     },
 
     getQuizPlants() {
