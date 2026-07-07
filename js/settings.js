@@ -118,10 +118,10 @@ const Settings = {
     },
 
     updateTagFilterInfo() {
-        const total = App.plants.length;
+        const difficulty = App.getDifficultyPlants().length;
         const filtered = App.getQuizPlants().length;
         document.getElementById("tagFilterInfo").textContent =
-            `${total} növényből ${filtered} felel meg a szűrőnek.`;
+            `A nehézségi szintnek megfelelő ${difficulty} növényből ${filtered} felel meg a tag szűrőnek.`;
     },
 
     languageSelector(groupName, selectedLangs = []) {

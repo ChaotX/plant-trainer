@@ -185,22 +185,29 @@ const App = {
         document.getElementById("menuButton").classList.remove("hidden");
     },
 
-    isPlantEnabledForQuiz(plant) {
+    isPlantEnabledForDifficulty(plant) {
         if (plant.level == null) {
             return true;
         }
         const difficulty = Number(this.settings.difficulty);
-        const difficultyMatches =
-            plant.level == null
-                ? true
-                : Array.isArray(plant.level)
-                  ? plant.level.some((level) => Number(level) === difficulty)
-                  : Number(plant.level) === difficulty;
-        if (!difficultyMatches) {
+        if (Array.isArray(plant.level)) {
+            return plant.level.some((level) => Number(level) === difficulty);
+        }
+        return Number(plant.level) === difficulty;
+    },
+
+    isPlantEnabledForQuiz(plant) {
+        if (!this.isPlantEnabledForDifficulty(plant)) {
             return false;
         }
+
         const filter = this.settings.filter.tag.trim().toLowerCase();
-        return (plant.tags || []).some((tag) => tag.toLowerCase().includes(tagFilter));
+
+        if (!filter) {
+            return true;
+        }
+
+        return (plant.tags || []).some((tag) => tag.toLowerCase().includes(filter));
     },
 
     getQuizPlants() {
