@@ -207,6 +207,10 @@ const App = {
             return true;
         }
 
+        if (!Array.isArray(plant.tags)) {
+            console.log("Invalid tags:", plant.names?.la?.[0], plant.tags, typeof plant.tags);
+        }
+
         return (plant.tags || []).some((tag) => tag.toLowerCase().includes(filter));
     },
 
