@@ -377,6 +377,13 @@ button:disabled {
     line-height: 1.4;
 }
 
+.setting-help {
+    margin: 0.4rem 0 0.6rem;
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+}
+
 .radio-group {
     display: flex;
     flex-direction: column;

@@ -19,6 +19,15 @@ const Settings = {
     </div>
     <hr>
     <div class="settings-group">
+        <h3>🏷️ Tag szűrő</h3>
+        <p class="setting-help">
+            Csak azok a növények jelennek meg, amelyek valamelyeknek valamelyik tag-je tartalmazza a megadott szöveget.
+            Például: <em>egynyári</em>
+        </p>
+        <input id="tagFilter" type="text" value="${App.settings.filter.tag}">
+        <div id="tagFilterInfo" class="setting-help"></div>
+    </div>
+    <div class="settings-group">
         <h3>📖 Tanuló mód</h3>
         <label>
             <input id="hideNameOnNextCheckbox" type="checkbox" ${App.settings.study.hide_name_on_next ? "checked" : ""}>
@@ -100,6 +109,19 @@ const Settings = {
                 App.settings.quiz.free_text.language = radio.value;
             };
         });
+        document.getElementById("tagFilter").oninput = (e) => {
+            App.settings.filter.tag = e.target.value;
+            this.updateTagFilterInfo();
+        };
+
+        this.updateTagFilterInfo();
+    },
+
+    updateTagFilterInfo() {
+        const total = App.plants.length;
+        const filtered = App.getQuizPlants().length;
+        document.getElementById("tagFilterInfo").textContent =
+            `${total} növényből ${filtered} felel meg a szűrőnek.`;
     },
 
     languageSelector(groupName, selectedLangs = []) {
