@@ -153,6 +153,24 @@ const App = {
         return await response.text();
     },
 
+    getPlantNames(plant, language) {
+        const names = App.getPlantNames(plant, language);
+
+        if (Array.isArray(names)) {
+            return names;
+        }
+
+        if (typeof names === "string") {
+            return [names];
+        }
+
+        return [];
+    },
+
+    getPlantPrimaryName(plant, language) {
+        return this.getPlantNames(plant, language)[0] || "";
+    },
+
     async getImageUrl(relativePath) {
         return await ImageManager.getImage(relativePath);
     },
@@ -208,7 +226,12 @@ const App = {
         }
 
         if (!Array.isArray(plant.tags)) {
-            console.log("Invalid tags:", plant.names?.la?.[0], plant.tags, typeof plant.tags);
+            console.log(
+                "Invalid tags:",
+                App.getPlantPrimaryName(plant, "la"),
+                plant.tags,
+                typeof plant.tags
+            );
         }
 
         return (plant.tags || []).some((tag) => tag.toLowerCase().includes(filter));
@@ -250,7 +273,7 @@ const App = {
 
     getPlantDisplayName(plant, languages = ["la"], separator = "<br>") {
         return languages
-            .map((lang) => plant.names?.[lang]?.[0])
+            .map((lang) => this.getPlantPrimaryName(plant, lang))
             .filter(Boolean)
             .join(separator);
     },
@@ -296,8 +319,8 @@ a hibák ellenére is használható.
 <hr>
 `;
         errors.forEach((entry, index) => {
-            const latinName = entry.plant.names?.la?.[0] || "(ismeretlen)";
-            const hungarianName = entry.plant.names?.hu?.[0] || "";
+            const latinName = App.getPlantPrimaryName(entry.plant, "la") || "(ismeretlen)";
+            const hungarianName = App.getPlantPrimaryName(entry.plant, "hu");
             html += `
 <div class="image-error">
     <strong>${latinName}</strong>

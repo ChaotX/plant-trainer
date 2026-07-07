@@ -23,7 +23,7 @@ const FreeTextQuiz = {
         return plants.slice(0, questionCount).map((plant) => ({
             plant,
             imagePath: ImageManager.pickRandomImage(plant),
-            correctAnswers: plant.names?.[language] || [],
+            correctAnswers: App.getPlantNames(plant, language),
             selectedAnswer: null,
             isCorrect: null
         }));
