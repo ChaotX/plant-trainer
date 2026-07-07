@@ -266,7 +266,7 @@ const App = {
         Legalább <strong>${minimum}</strong> növény szükséges.
     </p>
     <p>
-        Módosítsd a nehézségi szintet vagy a tag szűrőt.
+        Módosítsd a nehézségi szintet vagy a szűrést.
     </p>
 </div>
 `;

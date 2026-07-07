@@ -19,10 +19,13 @@ const Settings = {
     </div>
     <hr>
     <div class="settings-group">
-        <h3>🏷️ Tag szűrő</h3>
+        <h3>🏷️ Szűrés tulajdonság alapján</h3>
         <p class="setting-help">
-            Csak azok a növények jelennek meg, amelyek valamelyeknek valamelyik tag-je tartalmazza a megadott szöveget.
-            Például: <em>egynyári</em>
+            Például:
+            <em>egynyári</em>
+            <em>kétnyári</em>
+            <em>levéldísznövény</em>
+            <em>lombhullató</em>
         </p>
         <input id="tagFilter" type="text" value="${App.settings.filter.tag}">
         <div id="tagFilterInfo" class="setting-help"></div>
@@ -125,7 +128,7 @@ const Settings = {
         }
         const difficulty = App.getDifficultyPlants().length;
         const filtered = App.getQuizPlants().length;
-        info.textContent = `A nehézségi szintnek megfelelő ${difficulty} növényből ${filtered} felel meg a tag szűrőnek.`;
+        info.textContent = `A nehézségi szintnek megfelelő ${difficulty} növényből ${filtered} felel meg a szűrésnek.`;
     },
 
     languageSelector(groupName, selectedLangs = []) {
