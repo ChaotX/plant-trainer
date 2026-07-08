@@ -9,7 +9,7 @@ const Settings = {
         <h3>🌿 Növény vizsgaszint</h3>
         <label>
             <input type="radio" name="difficulty" value="1" ${App.settings.difficulty == 1 ? "checked" : ""}>
-            🟢 Minimum
+            🟢 Lista
         </label>
         <br>
         <label>
