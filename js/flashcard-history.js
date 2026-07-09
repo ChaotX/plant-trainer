@@ -1,4 +1,4 @@
-const HistoryManager = {
+const FlashcardHistory = {
     history: [],
     position: -1,
 
