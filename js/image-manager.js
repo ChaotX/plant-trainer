@@ -56,9 +56,10 @@ const ImageManager = {
         if (!file) {
             throw new Error(`Kép nem található: ${imagePath}`);
         }
-        const response = await fetch(API_URL + "?action=image&id=" + encodeURIComponent(file.id), {
-            cache: "force-cache"
-        });
+        const response = await ApiClient.fetchWithRetry(
+            API_URL + "?action=image&id=" + encodeURIComponent(file.id),
+            { cache: "force-cache" }
+        );
         console.log("FETCH", imagePath, Math.round(performance.now() - start), "ms");
         const data = await response.json();
         console.log("JSON", imagePath, Math.round(performance.now() - start), "ms");
@@ -69,16 +70,12 @@ const ImageManager = {
         return imageData;
     },
 
-    async preload(imagePath) {
+    preload(imagePath) {
         console.log("PRELOAD", imagePath);
         if (!imagePath) {
             return;
         }
-        try {
-            this.getImage(imagePath);
-        } catch (error) {
-            console.error(error);
-        }
+        this.getImage(imagePath).catch((error) => console.error(error));
     },
 
     async preloadPlant(plant) {
