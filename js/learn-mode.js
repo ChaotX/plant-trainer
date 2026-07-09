@@ -13,17 +13,17 @@ const LearnMode = {
         this.showNames = false;
         this.plants = [...App.getQuizPlants()];
         this.shuffle(this.plants);
-        HistoryManager.clear();
+        FlashcardHistory.clear();
         this.currentIndex = 0;
         this.nextEntry = null;
-        HistoryManager.push(this.createEntry(this.plants[this.currentIndex]));
+        FlashcardHistory.push(this.createEntry(this.plants[this.currentIndex]));
         App.showContent();
         await this.render();
         this.prepareNext();
     },
 
     getCurrentEntry() {
-        return HistoryManager.current();
+        return FlashcardHistory.current();
     },
 
     async render() {
@@ -32,7 +32,7 @@ const LearnMode = {
         const plant = entry.plant;
         const names = App.getPlantDisplayName(plant, ["la", "hu"]);
         const namesHiddenClass = this.showNames ? "" : "hidden";
-        const previousButton = `<button id="previousPlantButton" ${HistoryManager.canGoPrevious() ? "" : "disabled"}>⬅️</button>`;
+        const previousButton = `<button id="previousPlantButton" ${FlashcardHistory.canGoPrevious() ? "" : "disabled"}>⬅️</button>`;
         const tags = plant.tags?.length
             ? `<div class="plant-tags">(${plant.tags.join(" • ")})</div>`
             : "";
@@ -57,7 +57,7 @@ const LearnMode = {
 </div>
 `;
         this.registerEvents();
-        if (!HistoryManager.canGoNext()) {
+        if (!FlashcardHistory.canGoNext()) {
             this.prepareNext();
         }
         requestAnimationFrame(() => {
@@ -89,18 +89,18 @@ const LearnMode = {
         };
 
         document.getElementById("previousPlantButton").onclick = async () => {
-            if (!HistoryManager.canGoPrevious()) {
+            if (!FlashcardHistory.canGoPrevious()) {
                 return;
             }
-            const entry = HistoryManager.previous();
+            const entry = FlashcardHistory.previous();
             this.currentIndex = this.plants.indexOf(entry.plant);
             this.showNames &&= !App.settings.study.hide_name_on_next;
             await this.render();
         };
 
         document.getElementById("nextPlantButton").onclick = async () => {
-            if (HistoryManager.canGoNext()) {
-                const entry = HistoryManager.next();
+            if (FlashcardHistory.canGoNext()) {
+                const entry = FlashcardHistory.next();
                 this.currentIndex = this.plants.indexOf(entry.plant);
                 this.nextEntry = null;
                 this.showNames &&= !App.settings.study.hide_name_on_next;
@@ -111,7 +111,7 @@ const LearnMode = {
                 this.prepareNext();
             }
             console.log("PUSH NEXT", this.nextEntry.plant.names.la[0], this.nextEntry.imagePath);
-            HistoryManager.push(this.nextEntry);
+            FlashcardHistory.push(this.nextEntry);
             this.currentIndex = this.plants.indexOf(this.nextEntry.plant);
             this.nextEntry = null;
             this.showNames &&= !App.settings.study.hide_name_on_next;
@@ -131,8 +131,8 @@ const LearnMode = {
         if (this.nextEntry) {
             return;
         }
-        if (HistoryManager.canGoNext()) {
-            this.nextEntry = HistoryManager.history[HistoryManager.position + 1];
+        if (FlashcardHistory.canGoNext()) {
+            this.nextEntry = FlashcardHistory.history[FlashcardHistory.position + 1];
             console.log("NEXT ENTRY", this.nextEntry.plant.names.la[0], this.nextEntry.imagePath);
             ImageManager.preload(this.nextEntry.imagePath);
             return;
