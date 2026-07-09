@@ -143,6 +143,18 @@ button:disabled {
     background: #f0f0f0;
 }
 
+.plant-image.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: #666;
+}
+
+.image-error a {
+    display: inline-block;
+}
+
 .plant-names {
     text-align: center;
 }

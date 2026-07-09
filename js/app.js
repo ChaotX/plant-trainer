@@ -69,7 +69,12 @@ const App = {
     async loadIndex() {
         const url =
             `${API_URL}` + `?action=index` + `&folder=${encodeURIComponent(this.currentFolderId)}`;
-        const response = await fetch(url);
+        let response;
+        try {
+            response = await ApiClient.fetchWithRetry(url);
+        } catch (error) {
+            throw new Error("Nem sikerült betölteni a fájllistát");
+        }
         const data = await response.json();
         this.apiKey = data.apiKey;
         this.imageIndex = data.files || {};
@@ -146,8 +151,10 @@ const App = {
             `?action=file` +
             `&folder=${encodeURIComponent(this.currentFolderId)}` +
             `&path=${encodeURIComponent(relativePath)}`;
-        const response = await fetch(url);
-        if (!response.ok) {
+        let response;
+        try {
+            response = await ApiClient.fetchWithRetry(url);
+        } catch (error) {
             throw new Error(`Nem sikerült betölteni: ${relativePath}`);
         }
         return await response.text();
@@ -359,15 +366,25 @@ a hibák ellenére is használható.
     getMissingImageHtml(plant, imagePath) {
         const latinName = plant?.names?.la?.[0] || "Ismeretlen növény";
         console.error("Missing image", plant, imagePath);
+        const fileId = this.imageIndex[imagePath]?.id;
+        const driveLink = fileId
+            ? `
+                <br><br>
+                <a href="https://drive.google.com/file/d/${fileId}/view" target="_blank" rel="noopener">
+                    📂 Megnyitás a Google Drive-on
+                </a>
+            `
+            : "";
         return `
             <div class="image-error">
-                ❌ Kép nem található
+                ❌ Kép nem sikerült betölteni
                 <br><br>
                 <strong> ${latinName} </strong>
                 <br><br>
                 <code>
                     ${imagePath || "(üres útvonal)"}
                 </code>
+                ${driveLink}
             </div>
         `;
     }
