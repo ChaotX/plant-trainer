@@ -56,18 +56,70 @@ const ImageManager = {
         if (!file) {
             throw new Error(`Kép nem található: ${imagePath}`);
         }
-        const response = await ApiClient.fetchWithRetry(
-            API_URL + "?action=image&id=" + encodeURIComponent(file.id),
-            { cache: "force-cache" }
-        );
-        console.log("FETCH", imagePath, Math.round(performance.now() - start), "ms");
-        const data = await response.json();
-        console.log("JSON", imagePath, Math.round(performance.now() - start), "ms");
-        const imageData = `data:${data.mimeType};base64,${data.data}`;
-        console.log("BASE64", imagePath, Math.round(performance.now() - start), "ms");
-        const img = new Image();
-        img.src = imageData;
-        return imageData;
+        const candidates = this.getCandidateUrls(file);
+        if (candidates.length === 0) {
+            throw new Error(`Kép nem található: ${imagePath}`);
+        }
+        let lastError;
+        for (const url of candidates) {
+            try {
+                await this.probeImage(url, 15000);
+                console.log("RESOLVED", imagePath, Math.round(performance.now() - start), "ms", url);
+                return url;
+            } catch (error) {
+                lastError = error;
+                console.warn("Candidate failed", imagePath, url, error);
+            }
+        }
+        throw lastError;
+    },
+
+    getCandidateUrls(file) {
+        const candidates = [];
+        const thumbnailUrl = this.buildThumbnailUrl(file.thumbnailLink, 1600);
+        if (thumbnailUrl) {
+            candidates.push(thumbnailUrl);
+        }
+        if (this.app.apiKey) {
+            candidates.push(
+                "https://www.googleapis.com/drive/v3/files/" +
+                    encodeURIComponent(file.id) +
+                    "?alt=media&key=" +
+                    encodeURIComponent(this.app.apiKey)
+            );
+        }
+        return candidates;
+    },
+
+    buildThumbnailUrl(thumbnailLink, size) {
+        if (!thumbnailLink || !/=s\d+$/.test(thumbnailLink)) {
+            return null;
+        }
+        return thumbnailLink.replace(/=s\d+$/, `=s${size}`);
+    },
+
+    probeImage(url, timeoutMs) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const cleanup = () => {
+                clearTimeout(timer);
+                img.onload = null;
+                img.onerror = null;
+            };
+            const timer = setTimeout(() => {
+                cleanup();
+                reject(new Error("Időtúllépés a kép betöltése közben"));
+            }, timeoutMs);
+            img.onload = () => {
+                cleanup();
+                resolve();
+            };
+            img.onerror = () => {
+                cleanup();
+                reject(new Error("Kép betöltése sikertelen"));
+            };
+            img.src = url;
+        });
     },
 
     preload(imagePath) {
