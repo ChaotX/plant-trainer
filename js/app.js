@@ -364,7 +364,7 @@ a hibák ellenére is használható.
     },
 
     getMissingImageHtml(plant, imagePath) {
-        const latinName = plant?.names?.la?.[0] || "Ismeretlen növény";
+        const latinName = (plant && this.getPlantPrimaryName(plant, "la")) || "Ismeretlen növény";
         console.error("Missing image", plant, imagePath);
         const fileId = this.imageIndex[imagePath]?.id;
         const driveLink = fileId
