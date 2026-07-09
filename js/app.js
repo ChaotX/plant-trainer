@@ -62,6 +62,7 @@ const App = {
         document
             .getElementById("freeTextButton")
             .addEventListener("click", () => FreeTextQuiz.start());
+        document.getElementById("searchButton").addEventListener("click", () => Search.start());
         document.getElementById("settingsButton").addEventListener("click", () => Settings.start());
         document.getElementById("menuButton").addEventListener("click", () => this.showMainMenu());
     },
