@@ -15,6 +15,7 @@ const LearnMode = {
         this.shuffle(this.plants);
         HistoryManager.clear();
         this.currentIndex = 0;
+        this.nextEntry = null;
         HistoryManager.push(this.createEntry(this.plants[this.currentIndex]));
         App.showContent();
         await this.render();
