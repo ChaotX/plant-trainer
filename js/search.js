@@ -85,6 +85,9 @@ const Search = {
         if (settings.show_images) {
             columns.push({ key: "images", label: "Képek", className: "col-narrow" });
         }
+        if (settings.show_image_paths) {
+            columns.push({ key: "image_paths", label: "Kép útvonalak", className: "col-tags" });
+        }
         if (settings.show_level) {
             columns.push({ key: "level", label: "Szint", className: "col-narrow" });
         }
@@ -106,7 +109,9 @@ const Search = {
             nameHu: App.getPlantPrimaryName(plant, "hu") || "(névtelen)",
             tags: (plant.tags || []).join(", "),
             level: Array.isArray(plant.level) ? plant.level.join(", ") : plant.level ?? "",
-            imageCount: (plant.images || []).length
+            imageCount: (plant.images || []).length,
+            imagePaths: (plant.images || []).map((path) => `<code>${path}</code>`).join("<br>"),
+            imagePathsSort: (plant.images || []).join(", ")
         }));
 
         rows = rows.filter(
@@ -134,6 +139,9 @@ const Search = {
                 case "images":
                     result = a.imageCount - b.imageCount;
                     break;
+                case "image_paths":
+                    result = a.imagePathsSort.localeCompare(b.imagePathsSort);
+                    break;
                 case "level":
                     result = String(a.level).localeCompare(String(b.level));
                     break;
@@ -158,6 +166,8 @@ const Search = {
                 return row.tags;
             case "images":
                 return row.imageCount;
+            case "image_paths":
+                return row.imagePaths;
             case "level":
                 return row.level;
             case "id":

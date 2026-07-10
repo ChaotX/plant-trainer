@@ -104,7 +104,11 @@ const Settings = {
             </label>
             <label>
                 <input type="checkbox" id="searchShowImages" ${App.settings.search.show_images ? "checked" : ""}>
-                Képek száma
+                Képek
+            </label>
+            <label>
+                <input type="checkbox" id="searchShowImagePaths" ${App.settings.search.show_image_paths ? "checked" : ""}>
+                Kép útvonalak
             </label>
             <label>
                 <input type="checkbox" id="searchShowLevel" ${App.settings.search.show_level ? "checked" : ""}>
@@ -177,6 +181,9 @@ const Settings = {
         };
         document.getElementById("searchShowImages").onchange = (e) => {
             App.settings.search.show_images = e.target.checked;
+        };
+        document.getElementById("searchShowImagePaths").onchange = (e) => {
+            App.settings.search.show_image_paths = e.target.checked;
         };
         document.getElementById("searchShowLevel").onchange = (e) => {
             App.settings.search.show_level = e.target.checked;

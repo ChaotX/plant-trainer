@@ -34,6 +34,7 @@ const App = {
             combine_names: true,
             show_tags: true,
             show_images: false,
+            show_image_paths: false,
             show_level: false,
             show_id: false
         }
