@@ -46,6 +46,7 @@ const App = {
     plants: [],
     settings: {},
     currentFolderId: null,
+    hasLoadedData: false,
 
     async initialize() {
         try {
@@ -138,6 +139,7 @@ const App = {
                 console.log("SHOW ERRORS DONE");
                 return;
             }
+            this.hasLoadedData = true;
             this.showMainMenu();
             status.innerText = "";
         } catch (error) {
@@ -219,7 +221,7 @@ const App = {
         document.getElementById("startupScreen").classList.remove("hidden");
         document.getElementById("mainMenu").classList.add("hidden");
         document.getElementById("content").classList.add("hidden");
-        document.getElementById("menuButton").classList.add("hidden");
+        document.getElementById("menuButton").classList.toggle("hidden", !this.hasLoadedData);
     },
 
     showMainMenu() {
