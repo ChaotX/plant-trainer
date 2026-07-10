@@ -49,9 +49,12 @@ const LearnMode = {
         ${names}
         ${tags}
     </div>
-    <div id="plantImageContainer">
-        <div class="plant-image loading">
-            Kép betöltése...
+    <div id="plantImageContainer" class="plant-image-wrap">
+        <button id="plantInfoButton" class="info-badge" title="Növény adatlap">ℹ️</button>
+        <div id="plantImageInner">
+            <div class="plant-image loading">
+                Kép betöltése...
+            </div>
         </div>
     </div>
 </div>
@@ -66,20 +69,24 @@ const LearnMode = {
                     if (token !== this.renderToken) {
                         return;
                     }
-                    document.getElementById("plantImageContainer").innerHTML =
+                    document.getElementById("plantImageInner").innerHTML =
                         `<img src="${imageData}" class="plant-image">`;
                 })
                 .catch(() => {
                     if (token !== this.renderToken) {
                         return;
                     }
-                    document.getElementById("plantImageContainer").innerHTML =
+                    document.getElementById("plantImageInner").innerHTML =
                         App.getMissingImageHtml(plant, entry.imagePath);
                 });
         });
     },
 
     registerEvents() {
+        document.getElementById("plantInfoButton").onclick = () => {
+            PlantDetail.open(this.getCurrentEntry().plant);
+        };
+
         document.getElementById("showAnswerButton").onclick = () => {
             this.showNames = !this.showNames;
             document.getElementById("plantNames").classList.toggle("hidden");
