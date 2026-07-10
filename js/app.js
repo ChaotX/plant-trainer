@@ -26,6 +26,16 @@ const App = {
                 question_count: 10,
                 language: "la"
             }
+        },
+
+        search: {
+            show_name_la: true,
+            show_name_hu: true,
+            combine_names: true,
+            show_tags: true,
+            show_images: false,
+            show_level: false,
+            show_id: false
         }
     },
     imageIndex: {},
