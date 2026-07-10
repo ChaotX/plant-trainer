@@ -19,7 +19,7 @@ const FreeTextQuiz = {
         const questionCount = App.settings.quiz?.free_text?.question_count || 10;
         const language = App.settings.quiz.free_text.language || "la";
         const plants = [...App.getQuizPlants()];
-        this.shuffle(plants);
+        App.shuffle(plants);
         return plants.slice(0, questionCount).map((plant) => ({
             plant,
             imagePath: ImageManager.pickRandomImage(plant),
@@ -58,24 +58,13 @@ const FreeTextQuiz = {
 `;
         this.registerEvents(question);
         document.getElementById("answerInput").focus();
-        this.preloadNext();
-        requestAnimationFrame(() => {
-            ImageManager.getImage(question.imagePath)
-                .then((image) => {
-                    if (token !== this.renderToken) {
-                        return;
-                    }
-                    document.getElementById("quizImageContainer").innerHTML =
-                        `<img src="${image}" class="plant-image">`;
-                })
-                .catch(() => {
-                    if (token !== this.renderToken) {
-                        return;
-                    }
-                    document.getElementById("quizImageContainer").innerHTML =
-                        App.getMissingImageHtml(question.plant, question.imagePath);
-                });
-        });
+        App.preloadNextImage(this.questions, this.currentQuestion);
+        ImageManager.renderInto(
+            "quizImageContainer",
+            question.plant,
+            question.imagePath,
+            () => token !== this.renderToken
+        );
     },
 
     registerEvents(question) {
@@ -123,14 +112,6 @@ ${question.correctAnswers.join(", ")}
         next.onclick = async () => {
             await this.nextQuestion();
         };
-    },
-
-    preloadNext() {
-        const next = this.currentQuestion + 1;
-        if (next >= this.questions.length) {
-            return;
-        }
-        ImageManager.preload(this.questions[next].imagePath);
     },
 
     async nextQuestion() {
@@ -195,12 +176,5 @@ ${question.correctAnswers.join(", ")}
                 correctButton.onclick = () => PlantDetail.open(question.plant);
             }
         });
-    },
-
-    shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
     }
 };

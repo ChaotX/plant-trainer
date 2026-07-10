@@ -297,6 +297,21 @@ const App = {
             .join(separator);
     },
 
+    shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    },
+
+    preloadNextImage(items, currentIndex) {
+        const next = items[currentIndex + 1];
+        if (!next) {
+            return;
+        }
+        ImageManager.preload(next.imagePath);
+    },
+
     validateImages() {
         const missing = [];
         this.plants.forEach((plant, index) => {

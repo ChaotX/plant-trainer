@@ -136,5 +136,27 @@ const ImageManager = {
         }
         const imagePath = this.pickRandomImage(plant);
         await this.preload(imagePath);
+    },
+
+    renderInto(containerId, plant, imagePath, isStale) {
+        requestAnimationFrame(() => {
+            this.getImage(imagePath)
+                .then((image) => {
+                    if (isStale()) {
+                        return;
+                    }
+                    document.getElementById(containerId).innerHTML =
+                        `<img src="${image}" class="plant-image">`;
+                })
+                .catch(() => {
+                    if (isStale()) {
+                        return;
+                    }
+                    document.getElementById(containerId).innerHTML = this.app.getMissingImageHtml(
+                        plant,
+                        imagePath
+                    );
+                });
+        });
     }
 };

@@ -12,7 +12,7 @@ const LearnMode = {
         }
         this.showNames = false;
         this.plants = [...App.getQuizPlants()];
-        this.shuffle(this.plants);
+        App.shuffle(this.plants);
         FlashcardHistory.clear();
         this.currentIndex = 0;
         this.nextEntry = null;
@@ -63,23 +63,7 @@ const LearnMode = {
         if (!FlashcardHistory.canGoNext()) {
             this.prepareNext();
         }
-        requestAnimationFrame(() => {
-            ImageManager.getImage(entry.imagePath)
-                .then((imageData) => {
-                    if (token !== this.renderToken) {
-                        return;
-                    }
-                    document.getElementById("plantImageInner").innerHTML =
-                        `<img src="${imageData}" class="plant-image">`;
-                })
-                .catch(() => {
-                    if (token !== this.renderToken) {
-                        return;
-                    }
-                    document.getElementById("plantImageInner").innerHTML =
-                        App.getMissingImageHtml(plant, entry.imagePath);
-                });
-        });
+        ImageManager.renderInto("plantImageInner", plant, entry.imagePath, () => token !== this.renderToken);
     },
 
     registerEvents() {
@@ -151,12 +135,5 @@ const LearnMode = {
         this.nextEntry = this.createEntry(this.plants[nextIndex]);
         console.log("NEXT ENTRY", this.nextEntry.plant.names.la[0], this.nextEntry.imagePath);
         ImageManager.preload(this.nextEntry.imagePath);
-    },
-
-    shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
     }
 };

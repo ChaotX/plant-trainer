@@ -19,19 +19,19 @@ const MultipleChoiceQuiz = {
         const questionCount = App.settings.quiz?.multiple_choice?.question_count || 10;
         const choiceCount = App.settings.quiz?.multiple_choice?.choice_count || 4;
         const plants = [...App.getQuizPlants()];
-        this.shuffle(plants);
+        App.shuffle(plants);
         const languages = App.settings.quiz.multiple_choice.display_languages ?? ["la"];
         return plants.slice(0, questionCount).map((plant) => {
             const correctAnswer = App.getPlantDisplayName(plant, languages);
             const wrongPool = App.getQuizPlants().filter((p) => p !== plant);
-            this.shuffle(wrongPool);
+            App.shuffle(wrongPool);
             const choices = [
                 { name: correctAnswer, plant },
                 ...wrongPool
                     .slice(0, choiceCount - 1)
                     .map((p) => ({ name: App.getPlantDisplayName(p, languages), plant: p }))
             ];
-            this.shuffle(choices);
+            App.shuffle(choices);
             return {
                 plant,
                 imagePath: ImageManager.pickRandomImage(plant),
@@ -74,24 +74,13 @@ const MultipleChoiceQuiz = {
 </div>
 `;
         this.registerEvents(question);
-        this.preloadNext();
-        requestAnimationFrame(() => {
-            ImageManager.getImage(question.imagePath)
-                .then((image) => {
-                    if (token !== this.renderToken) {
-                        return;
-                    }
-                    document.getElementById("quizImageContainer").innerHTML =
-                        `<img src="${image}" class="plant-image">`;
-                })
-                .catch(() => {
-                    if (token !== this.renderToken) {
-                        return;
-                    }
-                    document.getElementById("quizImageContainer").innerHTML =
-                        App.getMissingImageHtml(question.plant, question.imagePath);
-                });
-        });
+        App.preloadNextImage(this.questions, this.currentQuestion);
+        ImageManager.renderInto(
+            "quizImageContainer",
+            question.plant,
+            question.imagePath,
+            () => token !== this.renderToken
+        );
     },
 
     registerEvents(question) {
@@ -137,14 +126,6 @@ const MultipleChoiceQuiz = {
         button.onclick = async () => {
             await this.nextQuestion();
         };
-    },
-
-    preloadNext() {
-        const next = this.currentQuestion + 1;
-        if (next >= this.questions.length) {
-            return;
-        }
-        ImageManager.preload(this.questions[next].imagePath);
     },
 
     async nextQuestion() {
@@ -218,12 +199,5 @@ const MultipleChoiceQuiz = {
                 }
             }
         });
-    },
-
-    shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
     }
 };
