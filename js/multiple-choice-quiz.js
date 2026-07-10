@@ -23,11 +23,14 @@ const MultipleChoiceQuiz = {
         const languages = App.settings.quiz.multiple_choice.display_languages ?? ["la"];
         return plants.slice(0, questionCount).map((plant) => {
             const correctAnswer = App.getPlantDisplayName(plant, languages);
-            const wrongAnswers = App.getQuizPlants()
-                .filter((p) => p !== plant)
-                .map((p) => App.getPlantDisplayName(p, languages));
-            this.shuffle(wrongAnswers);
-            const choices = [correctAnswer, ...wrongAnswers.slice(0, choiceCount - 1)];
+            const wrongPool = App.getQuizPlants().filter((p) => p !== plant);
+            this.shuffle(wrongPool);
+            const choices = [
+                { name: correctAnswer, plant },
+                ...wrongPool
+                    .slice(0, choiceCount - 1)
+                    .map((p) => ({ name: App.getPlantDisplayName(p, languages), plant: p }))
+            ];
             this.shuffle(choices);
             return {
                 plant,
@@ -35,6 +38,7 @@ const MultipleChoiceQuiz = {
                 correctAnswer,
                 choices,
                 selectedAnswer: null,
+                selectedPlant: null,
                 isCorrect: null
             };
         });
@@ -57,8 +61,8 @@ const MultipleChoiceQuiz = {
         ${question.choices
             .map(
                 (choice) => `
-<button class="quiz-choice" data-answer="${choice}">
-    ${choice}
+<button class="quiz-choice" data-answer="${choice.name}">
+    ${choice.name}
 </button>
 `
             )
@@ -101,6 +105,7 @@ const MultipleChoiceQuiz = {
                 const answer = button.dataset.answer;
                 const isCorrect = answer === question.correctAnswer;
                 question.selectedAnswer = answer;
+                question.selectedPlant = question.choices.find((choice) => choice.name === answer)?.plant;
                 question.isCorrect = isCorrect;
                 if (isCorrect) {
                     this.score++;
@@ -178,6 +183,7 @@ const MultipleChoiceQuiz = {
     <div class="result-text">
         <div class="result-correct-name">
             ${question.correctAnswer}
+            <button class="info-inline" data-info="correct" title="Növény adatlap">ℹ️</button>
         </div>
         ${
             question.isCorrect
@@ -188,6 +194,7 @@ const MultipleChoiceQuiz = {
 </div>
 <div class="result-answer">
     ${question.selectedAnswer}
+    <button class="info-inline" data-info="selected" title="Növény adatlap">ℹ️</button>
 </div>
 `
         }
@@ -196,6 +203,21 @@ const MultipleChoiceQuiz = {
 `;
         }
         document.getElementById("content").innerHTML = html;
+        document.querySelectorAll(".result-row").forEach((row, index) => {
+            const question = this.questions[index];
+            const correctButton = row.querySelector('[data-info="correct"]');
+            if (correctButton) {
+                correctButton.onclick = () => PlantDetail.open(question.plant);
+            }
+            const selectedButton = row.querySelector('[data-info="selected"]');
+            if (selectedButton) {
+                if (question.selectedPlant) {
+                    selectedButton.onclick = () => PlantDetail.open(question.selectedPlant);
+                } else {
+                    selectedButton.disabled = true;
+                }
+            }
+        });
     },
 
     shuffle(array) {
