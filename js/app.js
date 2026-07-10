@@ -52,6 +52,9 @@ const App = {
             ImageManager.initialize(this);
             await this.loadSources();
             this.registerEvents();
+            if (Object.keys(this.sources).length === 1) {
+                await this.loadSelectedSource();
+            }
         } catch (error) {
             console.error(error);
             document.getElementById("loadStatus").innerText = error.message;
@@ -113,14 +116,19 @@ const App = {
     },
 
     async loadSelectedSource() {
+        const selector = document.getElementById("sourceSelector");
+        const button = document.getElementById("loadSourceButton");
+        const status = document.getElementById("loadStatus");
         try {
-            const selector = document.getElementById("sourceSelector");
             const sourceName = selector.value;
             const source = this.sources[sourceName];
             const folderUrl = source.drive_folder;
             this.currentFolderId = this.extractFolderId(folderUrl);
             ImageManager.clear();
-            document.getElementById("loadStatus").innerText = "Betöltés...";
+            selector.disabled = true;
+            button.disabled = true;
+            status.classList.add("loading");
+            status.innerText = "Betöltés...";
             await this.loadIndex();
             await this.loadData();
             const errors = this.validateImages();
@@ -131,10 +139,14 @@ const App = {
                 return;
             }
             this.showMainMenu();
-            document.getElementById("loadStatus").innerText = "";
+            status.innerText = "";
         } catch (error) {
             console.error(error);
-            document.getElementById("loadStatus").innerText = error.message;
+            status.innerText = error.message;
+        } finally {
+            selector.disabled = false;
+            button.disabled = false;
+            status.classList.remove("loading");
         }
     },
 
