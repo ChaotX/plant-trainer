@@ -1,20 +1,4 @@
-const MultipleChoiceQuiz = {
-    questions: [],
-    currentQuestion: 0,
-    score: 0,
-    renderToken: 0,
-
-    async start() {
-        if (!App.ensureEnoughPlants(1)) {
-            return;
-        }
-        this.currentQuestion = 0;
-        this.score = 0;
-        this.questions = this.buildQuestions();
-        App.showContent();
-        await this.render();
-    },
-
+const MultipleChoiceQuiz = Object.assign({}, QuizBase, {
     buildQuestions() {
         const questionCount = App.settings.quiz?.multiple_choice?.question_count || 10;
         const choiceCount = App.settings.quiz?.multiple_choice?.choice_count || 4;
@@ -45,17 +29,9 @@ const MultipleChoiceQuiz = {
     },
 
     async render() {
-        const token = ++this.renderToken;
         const question = this.questions[this.currentQuestion];
         document.getElementById("content").innerHTML = `
-<div class="quiz-progress">
-    ${this.currentQuestion + 1} / ${this.questions.length}
-</div>
-<div id="quizImageContainer">
-    <div class="plant-image loading">
-        Kép betöltése...
-    </div>
-</div>
+${this.renderProgressHeader()}
 <div class="quiz-layout">
     <div class="quiz-choices">
         ${question.choices
@@ -74,13 +50,7 @@ const MultipleChoiceQuiz = {
 </div>
 `;
         this.registerEvents(question);
-        App.preloadNextImage(this.questions, this.currentQuestion);
-        ImageManager.renderInto(
-            "quizImageContainer",
-            question.plant,
-            question.imagePath,
-            () => token !== this.renderToken
-        );
+        this.renderQuizImage(question);
     },
 
     registerEvents(question) {
@@ -128,48 +98,11 @@ const MultipleChoiceQuiz = {
         };
     },
 
-    async nextQuestion() {
-        this.currentQuestion++;
-        if (this.currentQuestion >= this.questions.length) {
-            await this.showResults();
-            return;
-        }
-        await this.render();
-    },
-
-    async showResults() {
-        let html = `
-<h2>
-    Eredmény
-</h2>
-<p>
-    ${this.score} / ${this.questions.length}
-</p>
-<hr>
-`;
-        for (const question of this.questions) {
-            let imageHtml;
-            try {
-                const imageUrl = await ImageManager.getImage(question.imagePath);
-                imageHtml = `<img src="${imageUrl}" class="result-image">`;
-            } catch {
-                imageHtml = App.getMissingImageHtml(question.plant, question.plant.images?.[0]);
-            }
-            html += `
-<div class="result-row">
-    <div class="result-icon">
-        ${question.isCorrect ? "✅" : "❌"}
-    </div>
-    ${imageHtml}
-    <div class="result-text">
-        <div class="result-correct-name">
-            ${question.correctAnswer}
-            <button class="info-inline" data-info="correct" title="Növény adatlap">ℹ️</button>
-        </div>
-        ${
-            question.isCorrect
-                ? ""
-                : `
+    async renderResultRow(question) {
+        const imageHtml = await this.getResultImageHtml(question);
+        const answerBlock = question.isCorrect
+            ? ""
+            : `
 <div class="result-label">
     Te válaszod:
 </div>
@@ -177,27 +110,19 @@ const MultipleChoiceQuiz = {
     ${question.selectedAnswer}
     <button class="info-inline" data-info="selected" title="Növény adatlap">ℹ️</button>
 </div>
-`
-        }
-    </div>
-</div>
 `;
+        return this.renderResultRowShell(question, imageHtml, question.correctAnswer, answerBlock);
+    },
+
+    wireResultRow(row, question) {
+        this.wireCorrectButton(row, question);
+        const selectedButton = row.querySelector('[data-info="selected"]');
+        if (selectedButton) {
+            if (question.selectedPlant) {
+                selectedButton.onclick = () => PlantDetail.open(question.selectedPlant);
+            } else {
+                selectedButton.disabled = true;
+            }
         }
-        document.getElementById("content").innerHTML = html;
-        document.querySelectorAll(".result-row").forEach((row, index) => {
-            const question = this.questions[index];
-            const correctButton = row.querySelector('[data-info="correct"]');
-            if (correctButton) {
-                correctButton.onclick = () => PlantDetail.open(question.plant);
-            }
-            const selectedButton = row.querySelector('[data-info="selected"]');
-            if (selectedButton) {
-                if (question.selectedPlant) {
-                    selectedButton.onclick = () => PlantDetail.open(question.selectedPlant);
-                } else {
-                    selectedButton.disabled = true;
-                }
-            }
-        });
     }
-};
+});

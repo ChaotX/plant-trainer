@@ -1,20 +1,4 @@
-const FreeTextQuiz = {
-    questions: [],
-    currentQuestion: 0,
-    score: 0,
-    renderToken: 0,
-
-    async start() {
-        if (!App.ensureEnoughPlants(1)) {
-            return;
-        }
-        this.currentQuestion = 0;
-        this.score = 0;
-        this.questions = this.buildQuestions();
-        App.showContent();
-        await this.render();
-    },
-
+const FreeTextQuiz = Object.assign({}, QuizBase, {
     buildQuestions() {
         const questionCount = App.settings.quiz?.free_text?.question_count || 10;
         const language = App.settings.quiz.free_text.language || "la";
@@ -30,17 +14,9 @@ const FreeTextQuiz = {
     },
 
     async render() {
-        const token = ++this.renderToken;
         const question = this.questions[this.currentQuestion];
         document.getElementById("content").innerHTML = `
-<div class="quiz-progress">
-    ${this.currentQuestion + 1} / ${this.questions.length}
-</div>
-<div id="quizImageContainer">
-    <div class="plant-image loading">
-        Kép betöltése...
-    </div>
-</div>
+${this.renderProgressHeader()}
 <div class="free-text-answer">
     <input id="answerInput" type="text" autocomplete="off" placeholder="Latin név...">
 </div>
@@ -58,13 +34,7 @@ const FreeTextQuiz = {
 `;
         this.registerEvents(question);
         document.getElementById("answerInput").focus();
-        App.preloadNextImage(this.questions, this.currentQuestion);
-        ImageManager.renderInto(
-            "quizImageContainer",
-            question.plant,
-            question.imagePath,
-            () => token !== this.renderToken
-        );
+        this.renderQuizImage(question);
     },
 
     registerEvents(question) {
@@ -114,67 +84,18 @@ ${question.correctAnswers.join(", ")}
         };
     },
 
-    async nextQuestion() {
-        this.currentQuestion++;
-        if (this.currentQuestion >= this.questions.length) {
-            await this.showResults();
-            return;
-        }
-        await this.render();
-    },
-
-    async showResults() {
-        let html = `
-<h2>
-    Eredmény
-</h2>
-<p>
-    ${this.score} / ${this.questions.length}
-</p>
-<hr>
-`;
-        for (const question of this.questions) {
-            let imageHtml;
-            try {
-                const image = await ImageManager.getImage(question.imagePath);
-                imageHtml = `<img src="${image}" class="result-image">`;
-            } catch {
-                imageHtml = App.getMissingImageHtml(question.plant, question.imagePath);
-            }
-            html += `
-<div class="result-row">
-    <div class="result-icon">
-        ${question.isCorrect ? "✅" : "❌"}
-    </div>
-    ${imageHtml}
-    <div class="result-text">
-        <div class="result-correct-name">
-            ${question.correctAnswers[0]}
-            <button class="info-inline" data-info="correct" title="Növény adatlap">ℹ️</button>
-        </div>
-        ${
-            question.isCorrect
-                ? ""
-                : `
+    async renderResultRow(question) {
+        const imageHtml = await this.getResultImageHtml(question);
+        const answerBlock = question.isCorrect
+            ? ""
+            : `
 <div class="result-label">
     Te válaszod:
 </div>
 <div class="result-answer">
     ${question.selectedAnswer}
 </div>
-`
-        }
-    </div>
-</div>
 `;
-        }
-        document.getElementById("content").innerHTML = html;
-        document.querySelectorAll(".result-row").forEach((row, index) => {
-            const question = this.questions[index];
-            const correctButton = row.querySelector('[data-info="correct"]');
-            if (correctButton) {
-                correctButton.onclick = () => PlantDetail.open(question.plant);
-            }
-        });
+        return this.renderResultRowShell(question, imageHtml, question.correctAnswers[0], answerBlock);
     }
-};
+});
