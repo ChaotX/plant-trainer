@@ -205,10 +205,6 @@ const App = {
         return this.getPlantNames(plant, language)[0] || "";
     },
 
-    async getImageUrl(relativePath) {
-        return await ImageManager.getImage(relativePath);
-    },
-
     extractFolderId(driveUrl) {
         const match = driveUrl.match(/folders\/([a-zA-Z0-9_-]+)/);
         if (!match) {

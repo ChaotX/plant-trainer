@@ -150,7 +150,7 @@ const MultipleChoiceQuiz = {
         for (const question of this.questions) {
             let imageHtml;
             try {
-                const imageUrl = await App.getImageUrl(question.imagePath);
+                const imageUrl = await ImageManager.getImage(question.imagePath);
                 imageHtml = `<img src="${imageUrl}" class="result-image">`;
             } catch {
                 imageHtml = App.getMissingImageHtml(question.plant, question.plant.images?.[0]);
