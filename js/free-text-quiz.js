@@ -169,6 +169,7 @@ ${question.correctAnswers.join(", ")}
     <div class="result-text">
         <div class="result-correct-name">
             ${question.correctAnswers[0]}
+            <button class="info-inline" data-info="correct" title="Növény adatlap">ℹ️</button>
         </div>
         ${
             question.isCorrect
@@ -187,6 +188,13 @@ ${question.correctAnswers.join(", ")}
 `;
         }
         document.getElementById("content").innerHTML = html;
+        document.querySelectorAll(".result-row").forEach((row, index) => {
+            const question = this.questions[index];
+            const correctButton = row.querySelector('[data-info="correct"]');
+            if (correctButton) {
+                correctButton.onclick = () => PlantDetail.open(question.plant);
+            }
+        });
     },
 
     shuffle(array) {

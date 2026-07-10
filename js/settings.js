@@ -74,6 +74,52 @@ const Settings = {
             ${this.languageSelector("ftLanguage", App.settings.quiz.free_text.language)}
         </div>
     </div>
+    <hr>
+    <div class="settings-group">
+        <h3>🔍 Keresés</h3>
+        <label class="setting-label">
+            Név oszlop
+        </label>
+        <div class="radio-group">
+            <label>
+                <input type="checkbox" id="searchShowNameLa" ${App.settings.search.show_name_la ? "checked" : ""}>
+                Latin Név
+            </label>
+            <label>
+                <input type="checkbox" id="searchShowNameHu" ${App.settings.search.show_name_hu ? "checked" : ""}>
+                Magyar Név
+            </label>
+            <label>
+                <input type="checkbox" id="searchCombineNames" ${App.settings.search.combine_names ? "checked" : ""}>
+                Összevont név oszlop
+            </label>
+        </div>
+        <label class="setting-label">
+            Megjelenő oszlopok
+        </label>
+        <div class="radio-group">
+            <label>
+                <input type="checkbox" id="searchShowTags" ${App.settings.search.show_tags ? "checked" : ""}>
+                Címkék
+            </label>
+            <label>
+                <input type="checkbox" id="searchShowImages" ${App.settings.search.show_images ? "checked" : ""}>
+                Képek
+            </label>
+            <label>
+                <input type="checkbox" id="searchShowImagePaths" ${App.settings.search.show_image_paths ? "checked" : ""}>
+                Kép útvonalak
+            </label>
+            <label>
+                <input type="checkbox" id="searchShowLevel" ${App.settings.search.show_level ? "checked" : ""}>
+                Szint
+            </label>
+            <label>
+                <input type="checkbox" id="searchShowId" ${App.settings.search.show_id ? "checked" : ""}>
+                Id (sorszám)
+            </label>
+        </div>
+    </div>
 </div>
 `;
         document.querySelectorAll("input[name=difficulty]").forEach((radio) => {
@@ -113,6 +159,38 @@ const Settings = {
                 App.settings.quiz.free_text.language = radio.value;
             };
         });
+        document.getElementById("searchShowNameLa").onchange = (e) => {
+            if (!e.target.checked && !App.settings.search.show_name_hu) {
+                e.target.checked = true;
+                return;
+            }
+            App.settings.search.show_name_la = e.target.checked;
+        };
+        document.getElementById("searchShowNameHu").onchange = (e) => {
+            if (!e.target.checked && !App.settings.search.show_name_la) {
+                e.target.checked = true;
+                return;
+            }
+            App.settings.search.show_name_hu = e.target.checked;
+        };
+        document.getElementById("searchCombineNames").onchange = (e) => {
+            App.settings.search.combine_names = e.target.checked;
+        };
+        document.getElementById("searchShowTags").onchange = (e) => {
+            App.settings.search.show_tags = e.target.checked;
+        };
+        document.getElementById("searchShowImages").onchange = (e) => {
+            App.settings.search.show_images = e.target.checked;
+        };
+        document.getElementById("searchShowImagePaths").onchange = (e) => {
+            App.settings.search.show_image_paths = e.target.checked;
+        };
+        document.getElementById("searchShowLevel").onchange = (e) => {
+            App.settings.search.show_level = e.target.checked;
+        };
+        document.getElementById("searchShowId").onchange = (e) => {
+            App.settings.search.show_id = e.target.checked;
+        };
         document.getElementById("tagFilter").oninput = (e) => {
             App.settings.filter.tag = e.target.value;
             this.updateTagFilterInfo();
