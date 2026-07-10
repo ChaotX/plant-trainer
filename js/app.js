@@ -8,7 +8,8 @@ const App = {
         difficulty: 1,
 
         filter: {
-            tag: ""
+            tag: "",
+            tag_mode: "any"
         },
 
         study: {
@@ -238,24 +239,7 @@ const App = {
             return false;
         }
 
-        const filter = this.settings.filter.tag.trim().toLowerCase();
-
-        if (!filter) {
-            return true;
-        }
-
-        if (!Array.isArray(plant.tags)) {
-            console.log(
-                "Invalid tags:",
-                App.getPlantPrimaryName(plant, "la"),
-                plant.tags,
-                typeof plant.tags,
-                JSON.stringify(plant.tags)
-            );
-        }
-
-        const tags = Array.isArray(plant.tags) ? plant.tags : [];
-        return tags.some((tag) => typeof tag === "string" && tag.toLowerCase().includes(filter));
+        return Search.matchesTag(plant, this.settings.filter.tag, this.settings.filter.tag_mode);
     },
 
     getDifficultyPlants() {

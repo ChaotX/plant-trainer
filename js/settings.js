@@ -27,7 +27,14 @@ const Settings = {
             <em>levéldísznövény</em>
             <em>lombhullató</em>
         </p>
-        <input id="tagFilter" type="text" value="${App.settings.filter.tag}">
+        <div class="search-filter-row">
+            <input id="tagFilter" type="text" value="${App.settings.filter.tag}">
+            <select id="tagFilterModeSelect">
+                <option value="any" ${App.settings.filter.tag_mode === "any" ? "selected" : ""}>Bármely</option>
+                <option value="all" ${App.settings.filter.tag_mode === "all" ? "selected" : ""}>Mindegyik</option>
+                <option value="exact" ${App.settings.filter.tag_mode === "exact" ? "selected" : ""}>Egyezés</option>
+            </select>
+        </div>
         <div id="tagFilterInfo" class="setting-help"></div>
     </div>
     <div class="settings-group">
@@ -193,6 +200,10 @@ const Settings = {
         };
         document.getElementById("tagFilter").oninput = (e) => {
             App.settings.filter.tag = e.target.value;
+            this.updateTagFilterInfo();
+        };
+        document.getElementById("tagFilterModeSelect").onchange = (e) => {
+            App.settings.filter.tag_mode = e.target.value;
             this.updateTagFilterInfo();
         };
 
