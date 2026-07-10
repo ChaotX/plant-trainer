@@ -24,18 +24,10 @@ const Search = {
         return Array.from(languages).sort();
     },
 
-    getAvailableLevels() {
-        const levels = new Set();
-        App.plants.forEach((plant) => {
-            const level = plant.level;
-            if (Array.isArray(level)) {
-                level.forEach((l) => levels.add(String(l)));
-            } else if (level !== undefined && level !== null) {
-                levels.add(String(level));
-            }
-        });
-        return Array.from(levels).sort((a, b) => Number(a) - Number(b));
-    },
+    levels: [
+        { value: "1", label: "🟢 Lista" },
+        { value: "2", label: "🔴 Haladó" }
+    ],
 
     matchesName(plant, query, language) {
         const trimmed = query.trim().toLowerCase();
@@ -63,20 +55,20 @@ const Search = {
     },
 
     matchesLevel(plant, levelFilter) {
-        if (!levelFilter) {
+        if (!levelFilter || plant.level == null) {
             return true;
         }
         if (Array.isArray(plant.level)) {
-            return plant.level.some((level) => String(level) === levelFilter);
+            return plant.level.some((level) => Number(level) === Number(levelFilter));
         }
-        return String(plant.level) === levelFilter;
+        return Number(plant.level) === Number(levelFilter);
     },
 
     getRows() {
         let rows = App.plants.map((plant, index) => ({
             plant,
             plantIndex: index,
-            name: App.getPlantDisplayName(plant, ["la", "hu"], " / ") || "(névtelen)",
+            name: App.getPlantDisplayName(plant, ["la", "hu"]) || "(névtelen)",
             tags: (plant.tags || []).join(", "),
             level: Array.isArray(plant.level) ? plant.level.join(", ") : plant.level ?? "",
             imageCount: (plant.images || []).length
@@ -127,7 +119,6 @@ const Search = {
     render() {
         const rows = this.getRows();
         const languages = this.getAvailableLanguages();
-        const levels = this.getAvailableLevels();
 
         document.getElementById("content").innerHTML = `
 <div class="search-page">
@@ -166,10 +157,10 @@ const Search = {
             <label for="levelFilterSelect">Szint</label>
             <select id="levelFilterSelect">
                 <option value="" ${this.levelFilter === "" ? "selected" : ""}>Mind</option>
-                ${levels
+                ${this.levels
                     .map(
                         (level) => `
-<option value="${level}" ${this.levelFilter === level ? "selected" : ""}>${level}</option>
+<option value="${level.value}" ${this.levelFilter === level.value ? "selected" : ""}>${level.label}</option>
 `
                     )
                     .join("")}
@@ -180,11 +171,11 @@ const Search = {
         <table class="search-table">
             <thead>
                 <tr>
-                    <th data-sort="index">Id<span class="sort-indicator">${this.sortIndicator("index")}</span></th>
-                    <th data-sort="name">Név<span class="sort-indicator">${this.sortIndicator("name")}</span></th>
-                    <th data-sort="tags">Címkék<span class="sort-indicator">${this.sortIndicator("tags")}</span></th>
-                    <th data-sort="images">Képek<span class="sort-indicator">${this.sortIndicator("images")}</span></th>
-                    <th data-sort="level">Szint<span class="sort-indicator">${this.sortIndicator("level")}</span></th>
+                    <th class="col-name" data-sort="name">Név<span class="sort-indicator">${this.sortIndicator("name")}</span></th>
+                    <th class="col-tags" data-sort="tags">Címkék<span class="sort-indicator">${this.sortIndicator("tags")}</span></th>
+                    <th class="col-images" data-sort="images">Képek<span class="sort-indicator">${this.sortIndicator("images")}</span></th>
+                    <th class="col-level" data-sort="level">Szint<span class="sort-indicator">${this.sortIndicator("level")}</span></th>
+                    <th class="col-id" data-sort="index">Id<span class="sort-indicator">${this.sortIndicator("index")}</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -192,11 +183,11 @@ const Search = {
                     .map(
                         (row) => `
 <tr data-plant-index="${row.plantIndex}">
-    <td>${row.plantIndex + 1}</td>
-    <td>${row.name}</td>
-    <td>${row.tags}</td>
-    <td>${row.imageCount}</td>
-    <td>${row.level}</td>
+    <td class="col-name">${row.name}</td>
+    <td class="col-tags">${row.tags}</td>
+    <td class="col-images">${row.imageCount}</td>
+    <td class="col-level">${row.level}</td>
+    <td class="col-id">${row.plantIndex + 1}</td>
 </tr>
 `
                     )
