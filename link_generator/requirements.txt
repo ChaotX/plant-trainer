@@ -1,2 +1,0 @@
-PyYAML>=6.0
-google-api-python-client>=2.170.0
