@@ -3,15 +3,23 @@ const Search = {
     nameLanguage: null,
     tagFilter: "",
     tagMode: "any",
-    levelFilter: "",
-    sortKey: "index",
+    levelFilter: null,
+    sortKey: null,
     sortDir: "asc",
+
+    levels: [
+        { value: "1", label: "🟢 Lista" },
+        { value: "2", label: "🔴 Haladó" }
+    ],
 
     start() {
         App.showContent();
         if (!this.nameLanguage) {
             const languages = this.getAvailableLanguages();
             this.nameLanguage = languages.includes("la") ? "la" : languages[0] || "la";
+        }
+        if (this.levelFilter === null) {
+            this.levelFilter = String(App.settings.difficulty ?? "");
         }
         this.render();
     },
@@ -23,11 +31,6 @@ const Search = {
         });
         return Array.from(languages).sort();
     },
-
-    levels: [
-        { value: "1", label: "🟢 Lista" },
-        { value: "2", label: "🔴 Haladó" }
-    ],
 
     matchesName(plant, query, language) {
         const trimmed = query.trim().toLowerCase();
@@ -64,11 +67,43 @@ const Search = {
         return Number(plant.level) === Number(levelFilter);
     },
 
+    getActiveColumns() {
+        const settings = App.settings.search;
+        const nameLanguages = ["la", "hu"].filter((lang) => settings[`show_name_${lang}`]);
+        const columns = [];
+
+        if (nameLanguages.length > 1 && !settings.combine_names) {
+            columns.push({ key: "name_la", label: "Latin Név", className: "col-name" });
+            columns.push({ key: "name_hu", label: "Magyar Név", className: "col-name" });
+        } else if (nameLanguages.length > 0) {
+            columns.push({ key: "name", label: "Név", className: "col-name" });
+        }
+
+        if (settings.show_tags) {
+            columns.push({ key: "tags", label: "Címkék", className: "col-tags" });
+        }
+        if (settings.show_images) {
+            columns.push({ key: "images", label: "Képek", className: "col-narrow" });
+        }
+        if (settings.show_level) {
+            columns.push({ key: "level", label: "Szint", className: "col-narrow" });
+        }
+        if (settings.show_id) {
+            columns.push({ key: "id", label: "Id", className: "col-narrow" });
+        }
+
+        return columns;
+    },
+
     getRows() {
+        const nameLanguages = ["la", "hu"].filter((lang) => App.settings.search[`show_name_${lang}`]);
+
         let rows = App.plants.map((plant, index) => ({
             plant,
             plantIndex: index,
-            name: App.getPlantDisplayName(plant, ["la", "hu"]) || "(névtelen)",
+            name: App.getPlantDisplayName(plant, nameLanguages) || "(névtelen)",
+            nameLa: App.getPlantPrimaryName(plant, "la") || "(névtelen)",
+            nameHu: App.getPlantPrimaryName(plant, "hu") || "(névtelen)",
             tags: (plant.tags || []).join(", "),
             level: Array.isArray(plant.level) ? plant.level.join(", ") : plant.level ?? "",
             imageCount: (plant.images || []).length
@@ -82,19 +117,25 @@ const Search = {
         );
 
         rows.sort((a, b) => {
-            let result = 0;
+            let result;
             switch (this.sortKey) {
                 case "name":
                     result = a.name.localeCompare(b.name);
                     break;
+                case "name_la":
+                    result = a.nameLa.localeCompare(b.nameLa);
+                    break;
+                case "name_hu":
+                    result = a.nameHu.localeCompare(b.nameHu);
+                    break;
                 case "tags":
                     result = a.tags.localeCompare(b.tags);
                     break;
-                case "level":
-                    result = String(a.level).localeCompare(String(b.level));
-                    break;
                 case "images":
                     result = a.imageCount - b.imageCount;
+                    break;
+                case "level":
+                    result = String(a.level).localeCompare(String(b.level));
                     break;
                 default:
                     result = a.plantIndex - b.plantIndex;
@@ -103,6 +144,27 @@ const Search = {
         });
 
         return rows;
+    },
+
+    getCellValue(row, key) {
+        switch (key) {
+            case "name":
+                return row.name;
+            case "name_la":
+                return row.nameLa;
+            case "name_hu":
+                return row.nameHu;
+            case "tags":
+                return row.tags;
+            case "images":
+                return row.imageCount;
+            case "level":
+                return row.level;
+            case "id":
+                return row.plantIndex + 1;
+            default:
+                return "";
+        }
     },
 
     sortIndicator(key) {
@@ -119,6 +181,7 @@ const Search = {
     render() {
         const rows = this.getRows();
         const languages = this.getAvailableLanguages();
+        const columns = this.getActiveColumns();
 
         document.getElementById("content").innerHTML = `
 <div class="search-page">
@@ -156,7 +219,6 @@ const Search = {
         <div class="search-filter-row">
             <label for="levelFilterSelect">Szint</label>
             <select id="levelFilterSelect">
-                <option value="" ${this.levelFilter === "" ? "selected" : ""}>Mind</option>
                 ${this.levels
                     .map(
                         (level) => `
@@ -164,6 +226,7 @@ const Search = {
 `
                     )
                     .join("")}
+                <option value="" ${this.levelFilter === "" ? "selected" : ""}>Mind</option>
             </select>
         </div>
     </div>
@@ -171,11 +234,13 @@ const Search = {
         <table class="search-table">
             <thead>
                 <tr>
-                    <th class="col-name" data-sort="name">Név<span class="sort-indicator">${this.sortIndicator("name")}</span></th>
-                    <th class="col-tags" data-sort="tags">Címkék<span class="sort-indicator">${this.sortIndicator("tags")}</span></th>
-                    <th class="col-images" data-sort="images">Képek<span class="sort-indicator">${this.sortIndicator("images")}</span></th>
-                    <th class="col-level" data-sort="level">Szint<span class="sort-indicator">${this.sortIndicator("level")}</span></th>
-                    <th class="col-id" data-sort="index">Id<span class="sort-indicator">${this.sortIndicator("index")}</span></th>
+                    ${columns
+                        .map(
+                            (column) => `
+<th class="${column.className}" data-sort="${column.key}">${column.label}<span class="sort-indicator">${this.sortIndicator(column.key)}</span></th>
+`
+                        )
+                        .join("")}
                 </tr>
             </thead>
             <tbody>
@@ -183,11 +248,9 @@ const Search = {
                     .map(
                         (row) => `
 <tr data-plant-index="${row.plantIndex}">
-    <td class="col-name">${row.name}</td>
-    <td class="col-tags">${row.tags}</td>
-    <td class="col-images">${row.imageCount}</td>
-    <td class="col-level">${row.level}</td>
-    <td class="col-id">${row.plantIndex + 1}</td>
+    ${columns
+        .map((column) => `<td class="${column.className}">${this.getCellValue(row, column.key)}</td>`)
+        .join("")}
 </tr>
 `
                     )
@@ -195,6 +258,7 @@ const Search = {
             </tbody>
         </table>
         ${rows.length === 0 ? `<p class="center">Nincs találat.</p>` : ""}
+        ${columns.length === 0 ? `<p class="center">Nincs megjeleníthető oszlop a beállításokban.</p>` : ""}
     </div>
 </div>
 `;

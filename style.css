@@ -498,24 +498,8 @@ button:disabled {
     word-break: break-word;
 }
 
-.search-table .col-name {
-    width: 30%;
-}
-
-.search-table .col-tags {
-    width: 34%;
-}
-
-.search-table .col-images {
+.search-table .col-narrow {
     width: 12%;
-}
-
-.search-table .col-level {
-    width: 14%;
-}
-
-.search-table .col-id {
-    width: 10%;
 }
 
 .sort-indicator {
